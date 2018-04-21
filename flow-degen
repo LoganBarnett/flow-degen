@@ -1,0 +1,19 @@
+#! /usr/bin/env node
+//@flow
+
+// require('@babel/register')
+
+const fs = require('fs')
+const R = require('ramda')
+
+const codeGen = require('./base-gen.js').codeGen
+
+const configFile = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'))
+const generators = R.map(
+  ([out, path]) => [out, require(path).default() ],
+  configFile.generators,
+)
+
+console.log('generators', generators)
+
+codeGen(configFile.typeLocations, configFile.importLocations, generators)

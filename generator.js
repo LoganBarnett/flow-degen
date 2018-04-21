@@ -20,6 +20,7 @@ export type DeImport =
   | 'deBool'
   | 'deField'
   | 'deList'
+  | 'deMapping'
   | 'deNumber'
   | 'deString'
 
@@ -64,7 +65,7 @@ export function mergeDeps<CustomType: string, CustomImport: string>(
 }
 
 export const degenObject = <CustomType: string, CustomImport: string>(
-  deType: DeType,
+  deType: CustomType,
   fields: Array<FieldDeserializer<CustomType, CustomImport>>,
 ): DeserializerGenerator<CustomType, CustomImport> => {
   const fieldDeps = reduce(mergeDeps, { imports: [], types: [], hoists: [] },
@@ -129,6 +130,19 @@ export const degenList = <CustomType: string, CustomImport: string>(
   return [() => {
     return `deList.bind(null, ${elementDeserializer()})`
   }, mergeDeps(deps, { types: [], imports: ['deList'], hoists: [] }),
+  ]
+}
+
+export const degenMapping = <CustomType: string, CustomImport: string>(
+  keyGenerator: DeserializerGenerator<CustomType, CustomImport>,
+  valueGenerator: DeserializerGenerator<CustomType, CustomImport>,
+): DeserializerGenerator<CustomType, CustomImport> => {
+  const [keyDeserializer, keyDeps] = keyGenerator
+  const [valueDeserializer, valueDeps] = valueGenerator
+  const deps = { types: [], imports: ['deMapping'], hoists: []}
+  return [
+    () => `deMapping.bind(null, ${keyDeserializer()}, ${valueDeserializer()})`,
+    mergeDeps(mergeDeps(keyDeps, valueDeps), deps),
   ]
 }
 

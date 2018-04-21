@@ -1,0 +1,11 @@
+{
+  "typeLocations": {
+    "Config": "./config-generator.js"
+  },
+  "importLocations": {
+    "degenField": "./deserializer.js"
+  },
+  "generators": [
+    ["config.deserializer.js", "./config-generator.js"]
+  ]
+}
