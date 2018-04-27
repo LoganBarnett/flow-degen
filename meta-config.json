@@ -3,7 +3,10 @@
     "Config": "./config-generator.js"
   },
   "importLocations": {
-    "degenField": "./deserializer.js"
+    "deField": "./deserializer.js",
+    "deList": "./deserializer.js",
+    "deMapping": "./deserializer.js",
+    "deString": "./deserializer.js"
   },
   "generators": [
     ["config.deserializer.js", "./config-generator.js"]

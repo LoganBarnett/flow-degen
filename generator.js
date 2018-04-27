@@ -24,6 +24,11 @@ export type DeImport =
   | 'deNumber'
   | 'deString'
 
+export type MetaType<CustomType: string, CustomImport: string> = {
+  name: CustomType,
+  typeParams: Array<MetaType<CustomType, CustomImport> | CustomType | DeType>,
+}
+
 export type CodeGenDep<CustomType: string, CustomImport: string> = {
   types: Array<DeType | CustomType>,
   imports: Array<DeImport | CustomImport>,

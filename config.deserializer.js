@@ -1,8 +1,8 @@
 // @flow
 import type { Config } from './config-generator.js'
-import { deString, deMapping, deField, deList } from 'undefined'
+import { deString, deMapping, deField, deList } from './deserializer.js'
 
-export default (json: mixed): Config | Error => {
+export default (json: mixed): Config<string, string> | Error => {
   if (json === null) {
     return new Error('Could not deserialize json because the value is null.')
   } else if (typeof json == 'undefined') {
@@ -36,7 +36,7 @@ export default (json: mixed): Config | Error => {
       } else {
         const generators = deField(
           'generators',
-          deList.bind(null, deString),
+          deList.bind(null, deList.bind(null, deString)),
           json.generators,
         )
         if (generators instanceof Error) {
@@ -45,7 +45,7 @@ export default (json: mixed): Config | Error => {
             'Could not deserialize field "generators": ' + error.message,
           )
         } else {
-          const result: Config = {
+          const result: Config<string, string> = {
             typeLocations,
             importLocations,
             generators,

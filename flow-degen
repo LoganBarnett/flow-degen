@@ -1,19 +1,34 @@
 #! /usr/bin/env node
 //@flow
 
-// require('@babel/register')
+require('@babel/register')
 
 const fs = require('fs')
 const R = require('ramda')
 
 const codeGen = require('./base-gen.js').codeGen
+const configDeserializer = require('./config.deserializer.js').default
 
-const configFile = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'))
-const generators = R.map(
-  ([out, path]) => [out, require(path).default() ],
-  configFile.generators,
-)
+const configPath = process.argv[2]
+if(typeof configPath != 'string') {
+  console.error('usage: flow-degen config-file.json')
+  process.exit(1)
+}
+else {
+  const configFile = configDeserializer(
+    JSON.parse(fs.readFileSync(configPath, 'utf8')),
+  )
 
-console.log('generators', generators)
+  if(configFile instanceof Error) {
+    console.error('Error deserializing config file', configFile)
+    process.exit(1)
+  }
+  else {
+    const generators = R.map(
+      ([out, path]) => [out, require(path).default() ],
+      configFile.generators,
+    )
 
-codeGen(configFile.typeLocations, configFile.importLocations, generators)
+    codeGen(configFile.typeLocations, configFile.importLocations, generators)
+  }
+}
