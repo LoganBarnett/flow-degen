@@ -25,12 +25,12 @@ export type DeImport =
   | 'deString'
 
 export type MetaType<CustomType: string, CustomImport: string> = {
-  name: CustomType,
-  typeParams: Array<MetaType<CustomType, CustomImport> | CustomType | DeType>,
+  name: CustomType | DeType,
+  typeParams: Array<MetaType<CustomType, CustomImport>>,
 }
 
 export type CodeGenDep<CustomType: string, CustomImport: string> = {
-  types: Array<DeType | CustomType>,
+  types: Array<DeType | CustomType | MetaType<CustomType, CustomImport>>,
   imports: Array<DeImport | CustomImport>,
   hoists: Array<string>,
 }
@@ -289,6 +289,39 @@ const ${fnName} = (x: mixed): ${deType} | Error => {
     (y: DeserializerGenerator<CustomType, CustomImport>) => y[1],
     map(prop('deserializer'), props),
   ))]
+}
+
+const typeHeader = <CustomType: string, CustomImport: string>(
+  type: MetaType<CustomType, CustomImport>,
+): string => {
+  if(type.typeParams.length > 0) {
+    const params = type.typeParams.map(typeHeader)
+    return `${type.name}<${params.join(', ')}>`
+  }
+  else {
+    // Kind of a weird case to support.
+    return type.name
+  }
+}
+
+// const flattenTypes = <CustomType: string, CustomImport: string>(
+//   type: DeType | CustomType | MetaType<CustomType, CustomImport>,
+// ): Array<DeType | CustomType | MetaType<CustomType, CustomImport>> => {
+//   if(typeof type == 'string') {
+//     return [ type ]
+//   } else {
+//     return [ type.name ].concat(type.typeParams.map(flattenTypes))
+//   }
+// }
+
+export const degenType = <CustomType: string, CustomImport: string>(
+  type: DeType | CustomType | MetaType<CustomType, CustomImport>,
+): DeserializerGenerator<CustomType, CustomImport> => {
+  return [() => ``, {
+    types: [],
+    imports: [],
+    hoists: [],
+  }]
 }
 
 export const degenValue = <CustomType: string, CustomImport: string>(
