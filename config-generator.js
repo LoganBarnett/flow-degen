@@ -17,15 +17,6 @@ export type Config<CustomType: string, CustomImport: string> = {
   generators: Array<Array<string>>,
 }
 
-// const customType = degenType('CustomType', { constraint: 'string' })
-// const customImport = degenType('CustomImport', { constraint: 'string' })
-// degenType('Config', {
-//   typeParams: [
-//     customType,
-//     customImport,
-//   ],
-// })
-
 const stringType = { name: 'string', typeParams: [] }
 const configType = { name: 'Config', typeParams: [ stringType, stringType ]}
 
