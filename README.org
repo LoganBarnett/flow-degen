@@ -1,0 +1,50 @@
+#+title:    flow-degen README
+#+author:   Logan Barnett
+#+email:    logustus@gmail.com
+#+date:     <2018-05-08 Tue>
+#+language: en
+#+tags:     readme flow deserialization
+
+* flow-degen
+
+This is a deserialization _generator_ for JavaScript objects that are under
+[[http://flow.org][Flow]]. Some deserializer/validator projects use =$ObjMap= and some clever casting
+to achieve a type safe means of deserialization/validation. =flow-degen= aims to
+leverage Flow itself in ensuring type safety by _generating_ all of that ugly
+deserialization/validation code you would have written by hand.
+
+** installation
+
+#+begin_src sh
+yarn install -D flow-degen
+#+end_src
+
+** usage
+
+Once installed, you can use the =flow-degen= script to generate your
+deserializers:
+
+#+begin_src sh
+yarn flow-degen degen-config.json
+#+end_src
+
+** config structure
+
+#+begin_src json
+  {
+    "importLocations": {
+      "importName": "./dir/runtime.js"
+    },
+    "typeLocations": {
+      "TypeName": "./dir/type.js"
+    },
+    "generators": [
+      ["deserializer-output-file.js", "./dir/generator-input-file.js"]
+    ]
+  }
+#+end_src
+
+** bragging rights
+
+The config object above is generated from =config-generator.js= which in turn
+must deserialize itself in order to build the generator. =mind-blown.gif=
