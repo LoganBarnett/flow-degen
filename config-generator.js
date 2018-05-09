@@ -26,7 +26,10 @@ export type Config<CustomType: string, CustomImport: string> = {
 //   ],
 // })
 
-export default () => degenObject('Config', [
+const stringType = { name: 'string', typeParams: [] }
+const configType = { name: 'Config', typeParams: [ stringType, stringType ]}
+
+export default () => degenObject(configType, [
   degenField('typeLocations', degenMapping(degenString(), degenString())),
   degenField('importLocations', degenMapping(degenString(), degenString())),
   degenField('generators', degenList(degenList(degenFilePath()))),

@@ -30,7 +30,7 @@ export type MetaType<CustomType: string, CustomImport: string> = {
 }
 
 export type CodeGenDep<CustomType: string, CustomImport: string> = {
-  types: Array<DeType | CustomType | MetaType<CustomType, CustomImport>>,
+  types: Array<MetaType<CustomType, CustomImport>>,
   imports: Array<DeImport | CustomImport>,
   hoists: Array<string>,
 }
@@ -70,7 +70,7 @@ export function mergeDeps<CustomType: string, CustomImport: string>(
 }
 
 export const degenObject = <CustomType: string, CustomImport: string>(
-  deType: CustomType,
+  deType: MetaType<CustomType, CustomImport>,
   fields: Array<FieldDeserializer<CustomType, CustomImport>>,
 ): DeserializerGenerator<CustomType, CustomImport> => {
   const fieldDeps = reduce(mergeDeps, { imports: [], types: [], hoists: [] },
@@ -81,7 +81,9 @@ export const degenObject = <CustomType: string, CustomImport: string>(
     // No.
     const names = map(([n]) => n, fields)
     const fieldDeserializers = map(([, f]) => f[0](), fields)
-    return `(json: mixed): ${deType} | Error => {
+    const typeDeserializer = degenType(deType)
+    const typeName = typeDeserializer[0]()
+    return `(json: mixed): ${typeName} | Error => {
   if(json === null) {
     return new Error('Could not deserialize json because the value is null.')
   }
@@ -93,7 +95,7 @@ export const degenObject = <CustomType: string, CustomImport: string>(
   }
   else {
     ${fieldDeserializers.join('\n')}
-      const result: ${deType} = {
+      const result: ${typeName} = {
         ${names.join(',\n')}
       }
       return result
@@ -156,7 +158,7 @@ export const degenString = <CustomType: string, CustomImport: string>(
   return [() => {
     return `deString`
   }, {
-    types: ['string' ],
+    types: [ { name: 'string', typeParams: [] } ],
     imports: ['deString'],
     hoists: [],
   }]
@@ -168,7 +170,7 @@ export const degenString = <CustomType: string, CustomImport: string>(
 export const degenFilePath = degenString
 
 export const degenEnum = <CustomType: string, CustomImport: string>(
-  deType: DeType,
+  deType: MetaType<CustomType, CustomImport>,
   values: Array<string>
 ): DeserializerGenerator<CustomType, CustomImport> => {
   const [ stringGen, deps ] = degenString()
@@ -176,10 +178,11 @@ export const degenEnum = <CustomType: string, CustomImport: string>(
     // Needs triple equals here.
     const check = values.map(x => `'${x}'`).join(' === either || ') + ' === either'
     const oneOf = values.join(', ')
-    return `(v: mixed): ${deType} | Error => {
+    const typeName = degenType(deType)[0]()
+    return `(v: mixed): ${typeName} | Error => {
   const either = ${stringGen()}(v)
   if(either instanceof Error) {
-    return new Error('Could not deserialize "' + String(v) +'" into enum "${deType}":' + either.message)
+    return new Error('Could not deserialize "' + String(v) +'" into enum "${typeName}":' + either.message)
   }
   else {
     if(${check}) {
@@ -191,7 +194,7 @@ export const degenEnum = <CustomType: string, CustomImport: string>(
   }
 }`
   },
-    mergeDeps(deps, { types: [deType], imports: [], hoists: [] })
+    mergeDeps(deps, { types: [ deType ], imports: [], hoists: [] })
   ]
 }
 
@@ -243,20 +246,21 @@ return x`
 }
 
 export const degenSum = <CustomType: string, CustomImport: string>(
-  deType: DeType,
+  deType: MetaType<CustomType, CustomImport>,
   sentinelField: string,
-  sentinelFieldType: DeType,
+  sentinelFieldType: MetaType<CustomType, CustomImport>,
   props: Array<DeSentinelProp<CustomType, CustomImport>>,
 ): DeserializerGenerator<CustomType, CustomImport> => {
-  const fnName = `${deType}Refine`
+  const fnName = `${deType.name}Refine`
+  const typeHeader = degenType(deType)[0]()
   // Type declaration needs to be outside the function or we get "name already
   // bound"
   const hoist = `
 // Exhaustive union checks don't work, but there is a workaround.
 // See: https://github.com/facebook/flow/issues/3790
-type ${deType}UnreachableFix = empty
-type ${deType}ExhaustiveUnionFix = ${sentinelFieldType} | ${deType}UnreachableFix
-const ${fnName} = (x: mixed): ${deType} | Error => {
+type ${deType.name}UnreachableFix = empty
+type ${deType.name}ExhaustiveUnionFix = ${sentinelFieldType.name} | ${deType.name}UnreachableFix
+const ${fnName} = (x: mixed): ${typeHeader} | Error => {
   if(x != null && typeof x == 'object' && x.hasOwnProperty('${sentinelField}')
 && typeof x.${sentinelField} == 'string') {
     const sentinelValue = (${degenEnum(sentinelFieldType, props.map(p => p.key))[0]()})(x.${sentinelField})
@@ -264,7 +268,7 @@ const ${fnName} = (x: mixed): ${deType} | Error => {
       return new Error('Sentinel field ${sentinelField} could not deserialize properly: ' + sentinelValue.message)
     }
     else {
-      // const union: ${deType}ExhaustiveUnionFix = sentinelValue
+      // const union: ${deType.name}ExhaustiveUnionFix = sentinelValue
       // switch(union) {
       switch(sentinelValue) {
         ${pipe(
@@ -272,13 +276,13 @@ const ${fnName} = (x: mixed): ${deType} | Error => {
         )(props).join('\n')}
       default:
         // Fixes Flow's inability to cover exhaustive cases.
-        // ;(union: ${deType}UnreachableFix)
+        // ;(union: ${deType.name}UnreachableFix)
         return new Error('unreachable')
       }
     }
   }
   else {
-    return new Error('Could not deserialize object into ${deType}: ' + JSON.stringify(x))
+    return new Error('Could not deserialize object into ${deType.name}: ' + JSON.stringify(x))
   }
 }`
   return [() => {return `${fnName}`}, reduce(mergeDeps, {
@@ -304,20 +308,17 @@ const typeHeader = <CustomType: string, CustomImport: string>(
   }
 }
 
-// const flattenTypes = <CustomType: string, CustomImport: string>(
-//   type: DeType | CustomType | MetaType<CustomType, CustomImport>,
-// ): Array<DeType | CustomType | MetaType<CustomType, CustomImport>> => {
-//   if(typeof type == 'string') {
-//     return [ type ]
-//   } else {
-//     return [ type.name ].concat(type.typeParams.map(flattenTypes))
-//   }
-// }
+export const flattenTypes = <CustomType: string, CustomImport: string>(
+  type: MetaType<CustomType, CustomImport>,
+): Array<MetaType<CustomType, CustomImport>> => {
+  const nestedTypes = type.typeParams.map(flattenTypes)
+  return reduce(concat, [ type ], nestedTypes)
+}
 
 export const degenType = <CustomType: string, CustomImport: string>(
-  type: DeType | CustomType | MetaType<CustomType, CustomImport>,
+  type: MetaType<CustomType, CustomImport>,
 ): DeserializerGenerator<CustomType, CustomImport> => {
-  return [() => ``, {
+  return [() => typeHeader(type), {
     types: [],
     imports: [],
     hoists: [],

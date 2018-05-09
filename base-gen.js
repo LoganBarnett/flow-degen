@@ -1,5 +1,14 @@
 // @flow
-import { clone, partial, merge, toPairs, map, append, reduce } from 'ramda'
+import {
+  append,
+  clone,
+  concat,
+  map,
+  merge,
+  partial,
+  reduce,
+  toPairs,
+} from 'ramda'
 import fs from 'fs'
 import prettier from 'prettier'
 import {
@@ -7,6 +16,8 @@ import {
   type DeImport,
   type DeType,
   type DeserializerGenerator,
+  degenType,
+  flattenTypes,
 } from './generator.js'
 
 const prettierArgs = {
@@ -114,10 +125,7 @@ const header = <CustomType: string, CustomImport: string>(
       Object.assign({}, typeLocations),
       globalTypes,
       'import type',
-      // deps.types.map(a => a.toString()),
-      deps.types,
-      // Workaround for https://github.com/facebook/flow/issues/5457.
-      // deps.types.map(a => a.toString()),
+      reduce(concat, [], deps.types.map(flattenTypes)).map(t => t.name),
     )
     + addJavascriptImports(
       // Workaround for https://github.com/facebook/flow/issues/5457.
@@ -126,7 +134,6 @@ const header = <CustomType: string, CustomImport: string>(
       'import',
       // Workaround for https://github.com/facebook/flow/issues/5457.
       deps.imports,
-      // deps.imports.map(a => a.toString()),
     ) + '\n'
 }
 
