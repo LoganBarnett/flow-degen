@@ -19,16 +19,11 @@ deserialization/validation code you would have written by hand.
 yarn install -D flow-degen
 #+end_src
 
-** usage
-
-Once installed, you can use the =flow-degen= script to generate your
-deserializers:
-
-#+begin_src sh
-yarn flow-degen degen-config.json
-#+end_src
-
 ** config structure
+
+   You'll need a config file to work as inputs to =flow-degen=. It has the
+   structure below. Any paths or file names that start with =./= are intended to
+   show a relative directory.
 
 #+begin_src json
   {
@@ -42,6 +37,33 @@ yarn flow-degen degen-config.json
       ["deserializer-output-file.js", "./dir/generator-input-file.js"]
     ]
   }
+#+end_src
+
+** usage
+
+Once installed, you can use the =flow-degen= script to generate your
+deserializers:
+
+#+begin_src sh
+yarn flow-degen degen-config.json
+#+end_src
+
+The output files you indicate will always export a function as the =default=
+export. The function takes the form of =(mixed) => T | Error=.
+
+#+begin_src javascript
+import fs from 'fs'
+import fooDeserializer from './foo.deserializer.js'
+
+const unvalidatedFoo = JSON.parse(fs.readFileSync('foo.json', 'utf8'))
+const fooOrError = fooDeserializer(unvalidatedFoo)
+
+// Refine the result.
+if(fooOrError instanceof Error) {
+  console.error('Error deserializing foo:', fooOrError)
+} else {
+  doStuffWithFoo(fooOrError)
+}
 #+end_src
 
 ** bragging rights
