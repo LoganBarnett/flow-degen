@@ -2,8 +2,12 @@
   "name": "flow-degen",
   "version": "0.1.0",
   "description": "Generate (Flow) type safe deserializers in Javascript.",
-  "main": "index.js",
-  "repository": "https://github.com/LoganBarnett/flow-degen",
+  "homepage": "https://github.com/loganbarnett/flow-degen",
+  "main": "base-gen.js",
+  "bin": {
+    "flow-degen": "./flow-degen"
+  },
+  "repository": "git@github.com:LoganBarnett/flow-degen.git",
   "author": "Logan Barnett <logustus@gmail.com>",
   "license": "MIT",
   "devDependencies": {
