@@ -1,9 +1,21 @@
 #! /usr/bin/env node
 //@flow
 
-require('@babel/register')
-
 const fs = require('fs')
+const path = require('path')
+const babelConfig = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, './.babelrc'), 'utf8')
+)
+
+babelConfig.babelrcRoots = __dirname
+babelConfig.ignore = [
+  path.resolve(__dirname, '.git'),
+  path.resolve(__dirname, 'flow-typed'),
+  path.resolve(__dirname, 'node_modules'),
+]
+
+require('@babel/register')(babelConfig)
+
 const R = require('ramda')
 
 const codeGen = require('./base-gen.js').codeGen
@@ -25,7 +37,7 @@ else {
   }
   else {
     const generators = R.map(
-      ([out, path]) => [out, require(path).default() ],
+      ([out, p]) => [out, require(path.resolve(process.env.PWD, p)).default() ],
       configFile.generators,
     )
 
