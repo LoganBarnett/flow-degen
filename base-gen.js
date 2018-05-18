@@ -26,12 +26,12 @@ const prettierArgs = {
   singleQuote: true,
 }
 
-const importLocations: {[import: DeImport]: string} = {
-  deBool: './deserializer.js',
-  deField: './deserializer.js',
-  deList: './deserializer.js',
-  deNumber: './deserializer.js',
-  deString: './deserializer.js',
+const baseImportLocations: {[import: DeImport]: string} = {
+  deBool: 'flow-degen/deserializer.js',
+  deField: 'flow-degen/deserializer.js',
+  deList: 'flow-degen/deserializer.js',
+  deNumber: 'flow-degen/deserializer.js',
+  deString: 'flow-degen/deserializer.js',
 }
 
 const globalTypes = [
@@ -143,9 +143,10 @@ const hoist = (hoists: Array<string>) => {
 
 export const codeGen = <CustomType: string, CustomImport: string>(
   typeLocations: {[type: CustomType]: string},
-  importLocations: {[type: CustomImport]: string},
+  customImportLocations: {[type: CustomImport]: string},
   generators: Array<[string, DeserializerGenerator<CustomType, CustomImport>]>,
 ) => {
+  const importLocations = merge(customImportLocations, baseImportLocations)
   Promise.all(
     generators
       .map(([ file, [ de, deps ] ]) => [ file, de(), deps ])
