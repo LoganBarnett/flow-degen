@@ -1,14 +1,14 @@
 {
   "typeLocations": {
-    "Config": "./config-generator.js"
+    "Config": "./src/config-generator.js"
   },
   "importLocations": {
-    "deField": "./deserializer.js",
-    "deList": "./deserializer.js",
-    "deMapping": "./deserializer.js",
-    "deString": "./deserializer.js"
+    "deField": "./src/deserializer.js",
+    "deList": "./src/deserializer.js",
+    "deMapping": "./src/deserializer.js",
+    "deString": "./src/deserializer.js"
   },
   "generators": [
-    ["config.deserializer.js", "./config-generator.js"]
+    ["src/config.deserializer.js", "./src/config-generator.js"]
   ]
 }

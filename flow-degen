@@ -3,6 +3,8 @@
 
 const fs = require('fs')
 const path = require('path')
+// All of the files used here are transpiled, but this helps with consuming
+// files provided by the library consumer.
 const babelConfig = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, './.babelrc'), 'utf8')
 )
@@ -18,8 +20,8 @@ require('@babel/register')(babelConfig)
 
 const R = require('ramda')
 
-const codeGen = require('./base-gen.js').codeGen
-const configDeserializer = require('./config.deserializer.js').default
+const codeGen = require('./dist/base-gen.js').codeGen
+const configDeserializer = require('./dist/config.deserializer.js').default
 
 const configPath = process.argv[2]
 if(typeof configPath != 'string') {
