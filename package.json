@@ -11,21 +11,18 @@
   "author": "Logan Barnett <logustus@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "@babel/cli": "7.0.0-beta.46",
-    "@babel/core": "7.0.0-beta.46",
-    "@babel/node": "7.0.0-beta.46",
-    "@babel/preset-env": "7.0.0-beta.46",
-    "@babel/preset-flow": "7.0.0-beta.46",
-    "@babel/runtime": "7.0.0-beta.46",
+    "@babel/cli": "7.2.3",
+    "@babel/core": "7.2.2",
+    "@babel/node": "7.2.2",
+    "@babel/preset-env": "7.3.1",
+    "@babel/preset-flow": "7.0.0",
+    "@babel/register": "7.0.0",
     "eslint": "4.5.0",
     "flow-typed": "2.4.0"
   },
-  "peerDependencies": {
-    "@babel/cli": "7.0.0-beta.46",
-    "@babel/preset-flow": "7.0.0-beta.46"
-  },
+  "peerDependencies": {},
   "dependencies": {
-    "@babel/register": "7.0.0-beta.46",
+    "@babel/runtime": "7.3.1",
     "flow-bin": "0.69.0",
     "prettier": "1.12.0",
     "ramda": "0.25.0"
