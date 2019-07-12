@@ -1,6 +1,6 @@
 {
   "name": "flow-degen",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Generate (Flow) type safe deserializers in Javascript.",
   "homepage": "https://github.com/loganbarnett/flow-degen",
   "main": "dist/index.js",
@@ -25,8 +25,7 @@
     "ramda": "0.26.1"
   },
   "peerDependencies": {},
-  "dependencies": {
-  },
+  "dependencies": {},
   "scripts": {
     "lint:all": "eslint *.js"
   }
