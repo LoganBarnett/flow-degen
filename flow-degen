@@ -1,5 +1,5 @@
 #! /usr/bin/env node
-//@flow
+// @flow strict
 
 const fs = require('fs')
 const path = require('path')
@@ -43,6 +43,11 @@ else {
       configFile.generators,
     )
 
-    codeGen(configFile.typeLocations, configFile.importLocations, generators)
+    codeGen(
+      configFile.baseDir,
+      configFile.typeLocations,
+      configFile.importLocations,
+      generators,
+    )
   }
 }

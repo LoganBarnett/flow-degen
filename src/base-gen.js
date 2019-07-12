@@ -6,6 +6,7 @@ import {
   map,
   merge,
   partial,
+  prop,
   reduce,
   toPairs,
 } from 'ramda'
@@ -115,17 +116,27 @@ const stringToFilePromise = (fileName: string, s: string) => {
 // Then we can have one list of import locations, and a state to indicate
 // whether or not they are types.
 const header = <CustomType: string, CustomImport: string>(
+  baseDir: string,
   typeLocations: {[type: CustomType]: string},
   importLocations: {[type: CustomImport]: string},
   deps: CodeGenDep<CustomType, CustomImport>,
 ) => {
+  const trimBase = (base: string, s: string): string => {
+    const i = s.indexOf(base)
+    return i > -1 ? s.substring(i) : s
+  }
+  const trimBaseDir = trimBase.bind(null, baseDir)
+
   return '// @flow\n'
     + addJavascriptImports(
       // Workaround for https://github.com/facebook/flow/issues/5457.
       Object.assign({}, typeLocations),
       globalTypes,
       'import type',
-      reduce(concat, [], deps.types.map(flattenTypes)).map(t => t.name),
+      reduce(
+        concat,
+        [],
+        deps.types.map(flattenTypes)).map(prop('name')).map(trimBaseDir),
     )
     + addJavascriptImports(
       // Workaround for https://github.com/facebook/flow/issues/5457.
@@ -133,7 +144,7 @@ const header = <CustomType: string, CustomImport: string>(
       [],
       'import',
       // Workaround for https://github.com/facebook/flow/issues/5457.
-      deps.imports,
+      deps.imports.map(trimBaseDir),
     ) + '\n'
 }
 
@@ -142,16 +153,18 @@ const hoist = (hoists: Array<string>) => {
 }
 
 export const codeGen = <CustomType: string, CustomImport: string>(
+  baseDir: string,
   typeLocations: {[type: CustomType]: string},
   customImportLocations: {[type: CustomImport]: string},
   generators: Array<[string, DeserializerGenerator<CustomType, CustomImport>]>,
 ) => {
+  console.log('baseDir', baseDir)
   const importLocations = merge(baseImportLocations, customImportLocations)
   Promise.all(
     generators
       .map(([ file, [ de, deps ] ]) => [ file, de(), deps ])
       .map(([ file, code, deps ]) => {
-        const headerCode = header(typeLocations, importLocations, deps)
+        const headerCode = header(baseDir, typeLocations, importLocations, deps)
         const hoistedCode = hoist(deps.hoists)
         return [ file, `${headerCode}\n${hoistedCode}export default ${code}`, deps ]
       })

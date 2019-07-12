@@ -27,18 +27,21 @@ yarn add -E -D flow-degen
 
 #+begin_src json
   {
+    "baseDir": "",
+    "generators": [
+      ["deserializer-output-file.js", "./dir/generator-input-file.js"]
+    ],
     "importLocations": {
       "importName": "./dir/runtime.js"
     },
     "typeLocations": {
       "TypeName": "./dir/type.js"
-    },
-    "generators": [
-      ["deserializer-output-file.js", "./dir/generator-input-file.js"]
-    ]
+    }
   }
 #+end_src
-
+*** baseDir
+    =baseDir= is the directory that the generated file will be assumed to be
+    living out of relative to the imports.
 ** usage
 
 Once installed, you can use the =flow-degen= script to generate your

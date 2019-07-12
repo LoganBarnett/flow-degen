@@ -334,11 +334,11 @@ export const degenValue = <CustomType: string, CustomImport: string>(
   if(typeof x != '${type}') {
     return new Error('Could not deserialize "' + String(x) + '" into a ${type}.')
   }
-  else if(x === ${JSON.stringify(value)}){
+  else if(x === ${JSON.stringify(value) || 'undefined'}){
     return x
   }
   else {
-    return new Error('Could not deserialize "' + String(x) + '" into a ${type} with the value ${JSON.stringify(value)}.')
+    return new Error('Could not deserialize "' + String(x) + '" into a ${type} with the value ${JSON.stringify(value) || 'undefined'}.')
   }
 }`}, {
   types: [],

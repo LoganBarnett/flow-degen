@@ -1,6 +1,6 @@
 // @flow
 import type { Config } from './config-generator.js'
-import { deString, deMapping, deField, deList } from './deserializer.js'
+import { deString, deField, deMapping, deList } from './deserializer.js'
 
 export default (json: mixed): Config<string, string> | Error => {
   if (json === null) {
@@ -12,45 +12,54 @@ export default (json: mixed): Config<string, string> | Error => {
   } else if (json instanceof Error || typeof json != 'object') {
     return new Error('Could not deserialize object "' + String(json) + '"')
   } else {
-    const typeLocations = deField(
-      'typeLocations',
-      deMapping.bind(null, deString, deString),
-      json.typeLocations,
-    )
-    if (typeLocations instanceof Error) {
-      const error: Error = typeLocations
+    const baseDir = deField('baseDir', deString, json.baseDir)
+    if (baseDir instanceof Error) {
+      const error: Error = baseDir
       return new Error(
-        'Could not deserialize field "typeLocations": ' + error.message,
+        'Could not deserialize field "baseDir": ' + error.message,
       )
     } else {
-      const importLocations = deField(
-        'importLocations',
+      const typeLocations = deField(
+        'typeLocations',
         deMapping.bind(null, deString, deString),
-        json.importLocations,
+        json.typeLocations,
       )
-      if (importLocations instanceof Error) {
-        const error: Error = importLocations
+      if (typeLocations instanceof Error) {
+        const error: Error = typeLocations
         return new Error(
-          'Could not deserialize field "importLocations": ' + error.message,
+          'Could not deserialize field "typeLocations": ' + error.message,
         )
       } else {
-        const generators = deField(
-          'generators',
-          deList.bind(null, deList.bind(null, deString)),
-          json.generators,
+        const importLocations = deField(
+          'importLocations',
+          deMapping.bind(null, deString, deString),
+          json.importLocations,
         )
-        if (generators instanceof Error) {
-          const error: Error = generators
+        if (importLocations instanceof Error) {
+          const error: Error = importLocations
           return new Error(
-            'Could not deserialize field "generators": ' + error.message,
+            'Could not deserialize field "importLocations": ' + error.message,
           )
         } else {
-          const result: Config<string, string> = {
-            typeLocations,
-            importLocations,
-            generators,
+          const generators = deField(
+            'generators',
+            deList.bind(null, deList.bind(null, deString)),
+            json.generators,
+          )
+          if (generators instanceof Error) {
+            const error: Error = generators
+            return new Error(
+              'Could not deserialize field "generators": ' + error.message,
+            )
+          } else {
+            const result: Config<string, string> = {
+              baseDir,
+              typeLocations,
+              importLocations,
+              generators,
+            }
+            return result
           }
-          return result
         }
       }
     }
