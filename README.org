@@ -13,6 +13,18 @@ to achieve a type safe means of deserialization/validation. =flow-degen= aims to
 leverage Flow itself in ensuring type safety by _generating_ all of that ugly
 deserialization/validation code you would have written by hand.
 
+Pros:
+1. =flow-degen= introduces no runtime dependencies to consumers, other than
+   itself.
+2. =flow-degen= emits generators that use plain Flow type checking. There is no
+   =any= casting internally, and there are no magic types.
+
+Cons:
+1. =flow-degen= does not currently provide a list of deserializer errors, but
+   instead bails on the first error.
+2. There is potentially a memory/storage footprint concern for non-trivial sizes
+   and amounts of deserializers. A minifier may significantly mitigate this con.
+
 ** installation
 
 #+begin_src sh
@@ -42,8 +54,74 @@ yarn add -E -D flow-degen
 *** baseDir
     =baseDir= is the directory that the generated file will be assumed to be
     living out of relative to the imports.
+*** generators
+    This is a list of deserializers and their associated generators as tuples.
+    You can have multiple here to cover all of your deserializers for your
+    project.
+*** importLocations
+    This is a mapping of import names (which must be valid JavaScript
+    identifiers) to files. The identifiers must map to =export= entities inside
+    of your module. These will be hoisted to the top of the generated
+    deserializer files if they are used. Including entries in here does not mean
+    it will be used in your files, it is simply a lookup for =flow-degen= to
+    use.
+*** typeLocations
+    Just like =importLocations=, =typeLocations= is a reference for =export
+    type= identifiers so the generated deserializer can find them if any of the
+    combined deserializers use it.
 ** usage
+*** internal deserializer generators
 
+    =import= from =flow-degen= to get deserialization generators.
+
+**** degenField
+     =degenField= is meant to be used in conjunction with =degenObject=.
+**** degenFilePath
+     This is just an alias for =degenString= currently, but could one day
+     encompass a Flow opaque type that, while represented by a string, is
+     ensured to be a valid file path.
+**** degenList
+     Requires a deserializer to be used for the element type, which is provided
+     as its only argument. This will produce an =Array<T>=.
+**** degenMapping
+     A "mapping" is of the type ={[A]: B}= although usually it will be
+     ={[string]: mixed}=. It takes a key deserializer and a value deserializer
+     for =A= and =B= respectively.
+**** degenNumber
+     The =degenNumber= deserializer simply deserializes a value as a =number=.
+**** degenObject
+     An "Object" can be thought of as a collection of "fields". See =degenField=
+     as these go together except for empty objects. =degenObject= takes the type
+     of the object and a list of fields that =degenField= can emit.
+**** degenString
+     The =degenString= deserializer simply deserializes a value as a =string=.
+*** building custom deserializer generators
+    All deserializers must satisfy the following contract:
+
+    + They must be a function.
+    + The function returns a =DeserializerGenerator<CustomType: string,
+      CustomImport: string>=, which is a tuple of a function that returns a
+      =string= (the code) and a =CodeGenDep<CustomType: string, CustomImport:
+      string>=. The exacts of these types can be found in =./src/generator.js=.
+    + The function that returns a string must accept a =mixed= as a parameter.
+      This is your input provided from your mystery variable. It is assumed to
+      be "deserialized" already in the sense that it is not a string of JSON but
+      perhaps the result of =JSON.parse=.
+    + If any imports are used, they must be enumerated in the =imports= list of
+      the =CodeGenDep=.
+    + If any type imports are used, they must be enumerated in the =types= list
+      of the =CodeGenDep=.
+    + Consider that your generated code could likely be embedded deep within a
+      function chain. If you need some "root" access to the module to declare
+      things such as throw-away types, use the =hoists= list to place code.
+    + If your generator delegates to other generators (such as =degenList=
+      delegating to a deserializer for the elements), you must honor the results
+      of its =CodeGenDep= when you call the generator. This could mean merging
+      the =CodeGenDep= with your own. The =mergeDeps= function in
+      =./src/generator.js= does this for you. It is found by =flow-degen=
+      consumers as a top-level export (=import { mergeDeps } from
+      'flow-degen'=).
+*** command line
 Once installed, you can use the =flow-degen= script to generate your
 deserializers:
 
@@ -70,6 +148,18 @@ if(fooOrError instanceof Error) {
   doStuffWithFoo(fooOrError)
 }
 #+end_src
+
+*** editing generated deserializers
+    Do not edit these files directly except for debugging purposes. The files
+    will be overwritten on subsequent runs of the generator. Also, the code
+    written there is not designed with human maintainability as its chief
+    concern.
+
+*** source control
+    Tooling could be built to make the generation process opaque to a consumer,
+    but at the time that method is not known to =flow-degen= maintainers. It is
+    fine and even recommended to check your generated deserializers into source
+    control.
 
 ** bragging rights
 
