@@ -1,9 +1,9 @@
-#+title:    flow-degen README
-#+author:   Logan Barnett
-#+email:    logustus@gmail.com
-#+date:     <2018-05-08 Tue>
-#+language: en
-#+tags:     readme flow deserialization
+#+title:     flow-degen README
+#+author:    Logan Barnett
+#+email:     logustus@gmail.com
+#+date:      <2018-05-08 Tue>
+#+language:  en
+#+file_tags: readme flow deserialization
 
 * flow-degen
 
@@ -16,7 +16,7 @@ deserialization/validation code you would have written by hand.
 ** installation
 
 #+begin_src sh
-yarn install -D flow-degen
+yarn add -E -D flow-degen
 #+end_src
 
 ** config structure
@@ -47,6 +47,8 @@ deserializers:
 #+begin_src sh
 yarn flow-degen degen-config.json
 #+end_src
+
+*** consuming generated deserializers
 
 The output files you indicate will always export a function as the =default=
 export. The function takes the form of =(mixed) => T | Error=.
