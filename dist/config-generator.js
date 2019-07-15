@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = void 0;
+exports["default"] = void 0;
 
 var _generator = require("./generator.js");
 
@@ -20,4 +20,4 @@ var _default = function _default() {
   return (0, _generator.degenObject)(configType, [(0, _generator.degenField)('baseDir', (0, _generator.degenString)()), (0, _generator.degenField)('typeLocations', (0, _generator.degenMapping)((0, _generator.degenString)(), (0, _generator.degenString)())), (0, _generator.degenField)('importLocations', (0, _generator.degenMapping)((0, _generator.degenString)(), (0, _generator.degenString)())), (0, _generator.degenField)('generators', (0, _generator.degenList)((0, _generator.degenList)((0, _generator.degenFilePath)())))]);
 };
 
-exports.default = _default;
+exports["default"] = _default;

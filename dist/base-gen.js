@@ -13,7 +13,7 @@ var _prettier = _interopRequireDefault(require("prettier"));
 
 var _generator = require("./generator.js");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -73,7 +73,7 @@ var addJavascriptImports = function addJavascriptImports(locations, globalsToIgn
 
 var stringToFilePromise = function stringToFilePromise(fileName, s) {
   return new Promise(function (resolve, reject) {
-    _fs.default.writeFile(fileName, s, function (error) {
+    _fs["default"].writeFile(fileName, s, function (error) {
       if (error) {
         reject(error);
       } else {
@@ -128,7 +128,7 @@ var codeGen = function codeGen(baseDir, typeLocations, customImportLocations, ge
         file = _ref8[0],
         code = _ref8[1];
 
-    return stringToFilePromise(file, _prettier.default.format(code, prettierArgs));
+    return stringToFilePromise(file, _prettier["default"].format(code, prettierArgs));
   })).then(function () {
     console.log('done!');
   });
