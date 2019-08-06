@@ -95,6 +95,21 @@ yarn add -E -D flow-degen
      of the object and a list of fields that =degenField= can emit.
 **** degenString
      The =degenString= deserializer simply deserializes a value as a =string=.
+**** degenSentinelValue
+     This deserializer is to be used in conjunction with =degenSum= to produce
+     deserializers for a sum type. This represents one member of the union. It
+     needs a =key=, which is a string value for the sentinel value, and the
+     object deserializer itself, which will likely be =degenObject=.
+**** degenSum
+     The =degenSum= deserializer handles sum type objects. It takes the type of
+     the union, the sentinel field name, the sentinel field type, and a list of
+     sentinel object deserializers (which can just come from =degenObject=) from
+     =degenSentinelValue=.
+**** degenValue
+     The =degenValue= deserializer takes a =type= (as a string) and a =value=
+     (which could be anything). It checks for the literal equivalence of that
+     value. This can be helpful when using Flow's sentinel properties for sum
+     types of objects.
 *** building custom deserializer generators
     All deserializers must satisfy the following contract:
 
