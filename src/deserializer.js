@@ -1,5 +1,12 @@
 // @flow
 
+/**
+ * JSON.stringify could returned undefined if the input itself is undefined,
+ * which is a possible value from mixed. For the purposes of giving us a string,
+ * we don't really care and can assume the string 'undefined' in that case.
+ */
+export const stringify = (x: mixed): string => JSON.stringify(x) || 'undefined'
+
 export const deBool = (x: mixed): bool | Error => {
   if(typeof x != 'boolean') {
     return new Error('Could not deserialize "' + String(x) + '" into a bool.')

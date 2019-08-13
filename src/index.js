@@ -7,6 +7,7 @@ export {
   deMapping,
   deNumber,
   deString,
+  stringify,
 } from './deserializer.js'
 // export {
 //   codeGen,

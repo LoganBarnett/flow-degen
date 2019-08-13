@@ -25,5 +25,7 @@
   },
   "peerDependencies": {},
   "dependencies": {},
-  "scripts": {}
+  "scripts": {
+    "test": "yarn babel-node test/exhaustive-union.js"
+  }
 }

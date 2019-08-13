@@ -10,6 +10,8 @@ import {
   tail,
 } from 'ramda'
 
+import { stringify } from './deserializer.js'
+
 export type DeType =
   | 'Object'
   | 'bool'
@@ -17,6 +19,7 @@ export type DeType =
   | 'string'
 
 export type DeImport =
+  | 'stringify'
   | 'deBool'
   | 'deField'
   | 'deList'
@@ -255,44 +258,44 @@ export const degenSum = <CustomType: string, CustomImport: string>(
   const typeHeader = degenType(deType)[0]()
   // Type declaration needs to be outside the function or we get "name already
   // bound"
+  const enumGen = degenEnum(sentinelFieldType, props.map(p => p.key))
   const hoist = `
 // Exhaustive union checks don't work, but there is a workaround.
 // See: https://github.com/facebook/flow/issues/3790
-type ${deType.name}UnreachableFix = empty
+type ${deType.name}UnreachableFix = {| '@@flow-degen/unreachable-fix': 'false-field' |}
 type ${deType.name}ExhaustiveUnionFix = ${sentinelFieldType.name} | ${deType.name}UnreachableFix
 const ${fnName} = (x: mixed): ${typeHeader} | Error => {
   if(x != null && typeof x == 'object' && x.hasOwnProperty('${sentinelField}')
 && typeof x.${sentinelField} == 'string') {
-    const sentinelValue = (${degenEnum(sentinelFieldType, props.map(p => p.key))[0]()})(x.${sentinelField})
+    const sentinelValue = (${enumGen[0]()})(x.${sentinelField})
     if(sentinelValue instanceof Error) {
       return new Error('Sentinel field ${sentinelField} could not deserialize properly: ' + sentinelValue.message)
     }
     else {
-      // const union: ${deType.name}ExhaustiveUnionFix = sentinelValue
-      // switch(union) {
-      switch(sentinelValue) {
+      const union: ${deType.name}ExhaustiveUnionFix = sentinelValue
+      switch(union) {
         ${pipe(
           map(sentinelPropToCase),
         )(props).join('\n')}
       default:
         // Fixes Flow's inability to cover exhaustive cases.
-        // ;(union: ${deType.name}UnreachableFix)
+        ;(union: ${deType.name}UnreachableFix)
         return new Error('unreachable')
       }
     }
   }
   else {
-    return new Error('Could not deserialize object into ${deType.name}: ' + JSON.stringify(x))
+    return new Error('Could not deserialize object into ${deType.name}: ' + stringify(x))
   }
 }`
   return [() => {return `${fnName}`}, reduce(mergeDeps, {
     types: [deType, sentinelFieldType],
-    imports: [],
+    imports: ['stringify'],
     hoists: [hoist],
-  }, map(
+  }, append(enumGen[1], map(
     (y: DeserializerGenerator<CustomType, CustomImport>) => y[1],
     map(prop('deserializer'), props),
-  ))]
+  )))]
 }
 
 const typeHeader = <CustomType: string, CustomImport: string>(
@@ -334,15 +337,15 @@ export const degenValue = <CustomType: string, CustomImport: string>(
   if(typeof x != '${type}') {
     return new Error('Could not deserialize "' + String(x) + '" into a ${type}.')
   }
-  else if(x === ${JSON.stringify(value) || 'undefined'}){
+  else if(x === ${stringify(value)}){
     return x
   }
   else {
-    return new Error('Could not deserialize "' + String(x) + '" into a ${type} with the value ${JSON.stringify(value) || 'undefined'}.')
+    return new Error('Could not deserialize "' + String(x) + '" into a ${type} with the value ${stringify(value)}.')
   }
 }`}, {
   types: [],
-  imports: [],
+  imports: ['stringify'],
   hoists: [],
 }]
 }

@@ -33,6 +33,7 @@ const baseImportLocations: {[import: DeImport]: string} = {
   deList: 'flow-degen',
   deNumber: 'flow-degen',
   deString: 'flow-degen',
+  stringify: 'flow-degen',
 }
 
 const globalTypes = [
@@ -99,7 +100,7 @@ const addJavascriptImports = <T: string>(
   ).join('\n') + '\n'
 }
 
-const stringToFilePromise = (fileName: string, s: string) => {
+const stringToFilePromise = (fileName: string, s: string): Promise<void> => {
   return new Promise((resolve, reject) => {
     fs.writeFile(fileName, s, (error) => {
       if(error) {
@@ -120,7 +121,7 @@ const header = <CustomType: string, CustomImport: string>(
   typeLocations: {[type: CustomType]: string},
   importLocations: {[type: CustomImport]: string},
   deps: CodeGenDep<CustomType, CustomImport>,
-) => {
+): string => {
   const trimBase = (base: string, s: string): string => {
     const i = s.indexOf(base)
     return i > -1 ? s.substring(i) : s
@@ -130,7 +131,7 @@ const header = <CustomType: string, CustomImport: string>(
   return '// @flow\n'
     + addJavascriptImports(
       // Workaround for https://github.com/facebook/flow/issues/5457.
-      Object.assign({}, typeLocations),
+      merge({}, typeLocations),
       globalTypes,
       'import type',
       reduce(
@@ -140,7 +141,7 @@ const header = <CustomType: string, CustomImport: string>(
     )
     + addJavascriptImports(
       // Workaround for https://github.com/facebook/flow/issues/5457.
-      Object.assign({}, importLocations),
+      merge({}, importLocations),
       [],
       'import',
       // Workaround for https://github.com/facebook/flow/issues/5457.
@@ -148,7 +149,7 @@ const header = <CustomType: string, CustomImport: string>(
     ) + '\n'
 }
 
-const hoist = (hoists: Array<string>) => {
+const hoist = (hoists: Array<string>): string => {
   return hoists.join('\n\n') + '\n\n'
 }
 
@@ -157,21 +158,35 @@ export const codeGen = <CustomType: string, CustomImport: string>(
   typeLocations: {[type: CustomType]: string},
   customImportLocations: {[type: CustomImport]: string},
   generators: Array<[string, DeserializerGenerator<CustomType, CustomImport>]>,
-) => {
-  console.log('baseDir', baseDir)
+): Array<[ string, string, CodeGenDep<CustomType, CustomImport> ]> => {
   const importLocations = merge(baseImportLocations, customImportLocations)
-  Promise.all(
-    generators
-      .map(([ file, [ de, deps ] ]) => [ file, de(), deps ])
-      .map(([ file, code, deps ]) => {
-        const headerCode = header(baseDir, typeLocations, importLocations, deps)
-        const hoistedCode = hoist(deps.hoists)
-        return [ file, `${headerCode}\n${hoistedCode}export default ${code}`, deps ]
-      })
-      .map(([ file, code ]) => {
-        return stringToFilePromise(file, prettier.format(code, prettierArgs))
-      })
-  ).then(() => {
+  return generators
+    .map(([ file, [ de, deps ] ]) => [ file, de(), deps ])
+    .map(([ file, code, deps ]: [string, string, CodeGenDep<CustomType, CustomImport>]) => {
+      const headerCode = header(baseDir, typeLocations, importLocations, deps)
+      const hoistedCode = hoist(deps.hoists)
+      return [
+        file,
+        prettier.format(
+          `${headerCode}\n${hoistedCode}export default ${code}`,
+          prettierArgs,
+        ),
+        deps,
+      ]
+    })
+}
+
+export const fileGen = <CustomType: string, CustomImport: string>(
+  baseDir: string,
+  typeLocations: {[type: CustomType]: string},
+  customImportLocations: {[type: CustomImport]: string},
+  generators: Array<[string, DeserializerGenerator<CustomType, CustomImport>]>,
+) => {
+  return Promise.all(
+    codeGen(baseDir, typeLocations, customImportLocations, generators)
+      .map(([ file, code ]) => stringToFilePromise(file, code))
+  )
+  .then(() => {
     console.log('done!')
   })
 }

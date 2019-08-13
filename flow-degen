@@ -20,7 +20,7 @@ require('@babel/register')(babelConfig)
 
 const R = require('ramda')
 
-const codeGen = require('./dist/base-gen.js').codeGen
+const fileGen = require('./dist/base-gen.js').fileGen
 const configDeserializer = require('./dist/config.deserializer.js').default
 
 const configPath = process.argv[2]
@@ -43,7 +43,7 @@ else {
       configFile.generators,
     )
 
-    codeGen(
+    fileGen(
       configFile.baseDir,
       configFile.typeLocations,
       configFile.importLocations,
