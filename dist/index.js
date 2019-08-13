@@ -39,6 +39,12 @@ Object.defineProperty(exports, "deString", {
     return _deserializer.deString;
   }
 });
+Object.defineProperty(exports, "stringify", {
+  enumerable: true,
+  get: function get() {
+    return _deserializer.stringify;
+  }
+});
 Object.defineProperty(exports, "degenBool", {
   enumerable: true,
   get: function get() {

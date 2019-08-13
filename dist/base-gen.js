@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.codeGen = void 0;
+exports.fileGen = exports.codeGen = void 0;
 
 var _ramda = require("ramda");
 
@@ -35,7 +35,8 @@ var baseImportLocations = {
   deField: 'flow-degen',
   deList: 'flow-degen',
   deNumber: 'flow-degen',
-  deString: 'flow-degen'
+  deString: 'flow-degen',
+  stringify: 'flow-degen'
 };
 var globalTypes = ['bool', 'boolean', 'function', 'number', 'object', 'string']; // Use this to convert types to a series of file paths.
 // type StringMap<T: string> = {[key: T]: string}
@@ -94,8 +95,8 @@ var header = function header(baseDir, typeLocations, importLocations, deps) {
 
   var trimBaseDir = trimBase.bind(null, baseDir);
   return '// @flow\n' + addJavascriptImports( // Workaround for https://github.com/facebook/flow/issues/5457.
-  Object.assign({}, typeLocations), globalTypes, 'import type', (0, _ramda.reduce)(_ramda.concat, [], deps.types.map(_generator.flattenTypes)).map((0, _ramda.prop)('name')).map(trimBaseDir)) + addJavascriptImports( // Workaround for https://github.com/facebook/flow/issues/5457.
-  Object.assign({}, importLocations), [], 'import', // Workaround for https://github.com/facebook/flow/issues/5457.
+  (0, _ramda.merge)({}, typeLocations), globalTypes, 'import type', (0, _ramda.reduce)(_ramda.concat, [], deps.types.map(_generator.flattenTypes)).map((0, _ramda.prop)('name')).map(trimBaseDir)) + addJavascriptImports( // Workaround for https://github.com/facebook/flow/issues/5457.
+  (0, _ramda.merge)({}, importLocations), [], 'import', // Workaround for https://github.com/facebook/flow/issues/5457.
   deps.imports.map(trimBaseDir)) + '\n';
 };
 
@@ -104,9 +105,8 @@ var hoist = function hoist(hoists) {
 };
 
 var codeGen = function codeGen(baseDir, typeLocations, customImportLocations, generators) {
-  console.log('baseDir', baseDir);
   var importLocations = (0, _ramda.merge)(baseImportLocations, customImportLocations);
-  Promise.all(generators.map(function (_ref3) {
+  return generators.map(function (_ref3) {
     var _ref4 = _slicedToArray(_ref3, 2),
         file = _ref4[0],
         _ref4$ = _slicedToArray(_ref4[1], 2),
@@ -122,16 +122,22 @@ var codeGen = function codeGen(baseDir, typeLocations, customImportLocations, ge
 
     var headerCode = header(baseDir, typeLocations, importLocations, deps);
     var hoistedCode = hoist(deps.hoists);
-    return [file, "".concat(headerCode, "\n").concat(hoistedCode, "export default ").concat(code), deps];
-  }).map(function (_ref7) {
+    return [file, _prettier["default"].format("".concat(headerCode, "\n").concat(hoistedCode, "export default ").concat(code), prettierArgs), deps];
+  });
+};
+
+exports.codeGen = codeGen;
+
+var fileGen = function fileGen(baseDir, typeLocations, customImportLocations, generators) {
+  return Promise.all(codeGen(baseDir, typeLocations, customImportLocations, generators).map(function (_ref7) {
     var _ref8 = _slicedToArray(_ref7, 2),
         file = _ref8[0],
         code = _ref8[1];
 
-    return stringToFilePromise(file, _prettier["default"].format(code, prettierArgs));
+    return stringToFilePromise(file, code);
   })).then(function () {
     console.log('done!');
   });
 };
 
-exports.codeGen = codeGen;
+exports.fileGen = fileGen;

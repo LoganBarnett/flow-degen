@@ -8,6 +8,8 @@ exports.de = exports.degenValue = exports.degenType = exports.flattenTypes = exp
 
 var _ramda = require("ramda");
 
+var _deserializer2 = require("./deserializer.js");
+
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -218,18 +220,19 @@ var degenSum = function degenSum(deType, sentinelField, sentinelFieldType, props
   var typeHeader = degenType(deType)[0](); // Type declaration needs to be outside the function or we get "name already
   // bound"
 
-  var hoist = "\n// Exhaustive union checks don't work, but there is a workaround.\n// See: https://github.com/facebook/flow/issues/3790\ntype ".concat(deType.name, "UnreachableFix = empty\ntype ").concat(deType.name, "ExhaustiveUnionFix = ").concat(sentinelFieldType.name, " | ").concat(deType.name, "UnreachableFix\nconst ").concat(fnName, " = (x: mixed): ").concat(typeHeader, " | Error => {\n  if(x != null && typeof x == 'object' && x.hasOwnProperty('").concat(sentinelField, "')\n&& typeof x.").concat(sentinelField, " == 'string') {\n    const sentinelValue = (").concat(degenEnum(sentinelFieldType, props.map(function (p) {
+  var enumGen = degenEnum(sentinelFieldType, props.map(function (p) {
     return p.key;
-  }))[0](), ")(x.").concat(sentinelField, ")\n    if(sentinelValue instanceof Error) {\n      return new Error('Sentinel field ").concat(sentinelField, " could not deserialize properly: ' + sentinelValue.message)\n    }\n    else {\n      // const union: ").concat(deType.name, "ExhaustiveUnionFix = sentinelValue\n      // switch(union) {\n      switch(sentinelValue) {\n        ").concat((0, _ramda.pipe)((0, _ramda.map)(sentinelPropToCase))(props).join('\n'), "\n      default:\n        // Fixes Flow's inability to cover exhaustive cases.\n        // ;(union: ").concat(deType.name, "UnreachableFix)\n        return new Error('unreachable')\n      }\n    }\n  }\n  else {\n    return new Error('Could not deserialize object into ").concat(deType.name, ": ' + JSON.stringify(x))\n  }\n}");
+  }));
+  var hoist = "\n// Exhaustive union checks don't work, but there is a workaround.\n// See: https://github.com/facebook/flow/issues/3790\ntype ".concat(deType.name, "UnreachableFix = {| '@@flow-degen/unreachable-fix': 'false-field' |}\ntype ").concat(deType.name, "ExhaustiveUnionFix = ").concat(sentinelFieldType.name, " | ").concat(deType.name, "UnreachableFix\nconst ").concat(fnName, " = (x: mixed): ").concat(typeHeader, " | Error => {\n  if(x != null && typeof x == 'object' && x.hasOwnProperty('").concat(sentinelField, "')\n&& typeof x.").concat(sentinelField, " == 'string') {\n    const sentinelValue = (").concat(enumGen[0](), ")(x.").concat(sentinelField, ")\n    if(sentinelValue instanceof Error) {\n      return new Error('Sentinel field ").concat(sentinelField, " could not deserialize properly: ' + sentinelValue.message)\n    }\n    else {\n      const union: ").concat(deType.name, "ExhaustiveUnionFix = sentinelValue\n      switch(union) {\n        ").concat((0, _ramda.pipe)((0, _ramda.map)(sentinelPropToCase))(props).join('\n'), "\n      default:\n        // Fixes Flow's inability to cover exhaustive cases.\n        ;(union: ").concat(deType.name, "UnreachableFix)\n        return new Error('unreachable')\n      }\n    }\n  }\n  else {\n    return new Error('Could not deserialize object into ").concat(deType.name, ": ' + stringify(x))\n  }\n}");
   return [function () {
     return "".concat(fnName);
   }, (0, _ramda.reduce)(mergeDeps, {
     types: [deType, sentinelFieldType],
-    imports: [],
+    imports: ['stringify'],
     hoists: [hoist]
-  }, (0, _ramda.map)(function (y) {
+  }, (0, _ramda.append)(enumGen[1], (0, _ramda.map)(function (y) {
     return y[1];
-  }, (0, _ramda.map)((0, _ramda.prop)('deserializer'), props)))];
+  }, (0, _ramda.map)((0, _ramda.prop)('deserializer'), props))))];
 };
 
 exports.degenSum = degenSum;
@@ -265,10 +268,10 @@ exports.degenType = degenType;
 
 var degenValue = function degenValue(type, value) {
   return [function () {
-    return "(x: mixed) => {\n  if(typeof x != '".concat(type, "') {\n    return new Error('Could not deserialize \"' + String(x) + '\" into a ").concat(type, ".')\n  }\n  else if(x === ").concat(JSON.stringify(value) || 'undefined', "){\n    return x\n  }\n  else {\n    return new Error('Could not deserialize \"' + String(x) + '\" into a ").concat(type, " with the value ").concat(JSON.stringify(value) || 'undefined', ".')\n  }\n}");
+    return "(x: mixed) => {\n  if(typeof x != '".concat(type, "') {\n    return new Error('Could not deserialize \"' + String(x) + '\" into a ").concat(type, ".')\n  }\n  else if(x === ").concat((0, _deserializer2.stringify)(value), "){\n    return x\n  }\n  else {\n    return new Error('Could not deserialize \"' + String(x) + '\" into a ").concat(type, " with the value ").concat((0, _deserializer2.stringify)(value), ".')\n  }\n}");
   }, {
     types: [],
-    imports: [],
+    imports: ['stringify'],
     hoists: []
   }];
 };

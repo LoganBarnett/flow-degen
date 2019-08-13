@@ -3,9 +3,20 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.deString = exports.deMapping = exports.deList = exports.deField = exports.deNumber = exports.deBool = void 0;
+exports.deString = exports.deMapping = exports.deList = exports.deField = exports.deNumber = exports.deBool = exports.stringify = void 0;
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+/**
+ * JSON.stringify could returned undefined if the input itself is undefined,
+ * which is a possible value from mixed. For the purposes of giving us a string,
+ * we don't really care and can assume the string 'undefined' in that case.
+ */
+var stringify = function stringify(x) {
+  return JSON.stringify(x) || 'undefined';
+};
+
+exports.stringify = stringify;
 
 var deBool = function deBool(x) {
   if (typeof x != 'boolean') {
