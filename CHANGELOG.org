@@ -7,18 +7,34 @@
 #+tags:
 
 * changelog
+** 0.9.0
+*** Breaking
+    + The new =generatedPreamble= field is required and will break
+      configurations that lack it.
+*** Additions
+    + Added =generatedPreamble= to the configuration, which gets added to the
+      top of generated files.
+*** Fixes
+    + Use =@flow strict= for generated files. =0.8.0= did not actually accomplish
+      this.
+    + Fix some type coverage in =deserializer.js= which is a runtime file.
 ** 0.8.0
-   + Use an exhaustive-union check to ensure your disjoint-union/sum types are
-     checking for every member of the union.
-   + When =JSON.stringify= receives a =mixed= it can be =undefined= as its
-     output instead of =string=. The =stringify= utility has been added which
-     will return the string ='undefined'= in the case of =undefined=.
-   + Use =@flow strict= for generated files.
-   + Add documentation for =degenSentinelValue=, =degenSum=, and =degenValue=.
-   + (Hopefully) Fix a bug where the =deString= dependency from =degenEnum=
-     wasn't being chained out of =degenSum=. The test framework is still being
-     put together so this wasn't fully tested.
-   + Introduced a changelog.
-   + Internally, there is now an automated test for generation and checking for
-     Flow errors.
-   + Internally, source files now use the =@flow strict= annotation.
+*** Breaking
+*** Additions
+*** Fixes
+    + Use an exhaustive-union check to ensure your disjoint-union/sum types are
+      checking for every member of the union.
+    + When =JSON.stringify= receives a =mixed= it can be =undefined= as its
+      output instead of =string=. The =stringify= utility has been added which
+      will return the string ='undefined'= in the case of =undefined=.
+    + +Use =@flow strict= for generated files.+ Adding =@flow strict= did not
+      happen in this release but instead in =0.9.0=.
+    + Fix a bug where the =deString= dependency from =degenEnum= wasn't being
+      chained out of =degenSum=. The test framework is still being put together
+      so this wasn't fully tested.
+*** Internal
+    + Add documentation for =degenSentinelValue=, =degenSum=, and =degenValue=.
+    + Introduced a changelog.
+    + Internally, there is now an automated test for generation and checking for
+      Flow errors.
+    + Internally, source files now use the =@flow strict= annotation.

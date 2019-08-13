@@ -87,14 +87,14 @@ var stringToFilePromise = function stringToFilePromise(fileName, s) {
 // whether or not they are types.
 
 
-var header = function header(baseDir, typeLocations, importLocations, deps) {
+var header = function header(baseDir, preamble, typeLocations, importLocations, deps) {
   var trimBase = function trimBase(base, s) {
     var i = s.indexOf(base);
     return i > -1 ? s.substring(i) : s;
   };
 
   var trimBaseDir = trimBase.bind(null, baseDir);
-  return '// @flow\n' + addJavascriptImports( // Workaround for https://github.com/facebook/flow/issues/5457.
+  return preamble + '\n// @flow strict\n' + addJavascriptImports( // Workaround for https://github.com/facebook/flow/issues/5457.
   (0, _ramda.merge)({}, typeLocations), globalTypes, 'import type', (0, _ramda.reduce)(_ramda.concat, [], deps.types.map(_generator.flattenTypes)).map((0, _ramda.prop)('name')).map(trimBaseDir)) + addJavascriptImports( // Workaround for https://github.com/facebook/flow/issues/5457.
   (0, _ramda.merge)({}, importLocations), [], 'import', // Workaround for https://github.com/facebook/flow/issues/5457.
   deps.imports.map(trimBaseDir)) + '\n';
@@ -104,7 +104,7 @@ var hoist = function hoist(hoists) {
   return hoists.join('\n\n') + '\n\n';
 };
 
-var codeGen = function codeGen(baseDir, typeLocations, customImportLocations, generators) {
+var codeGen = function codeGen(baseDir, preamble, typeLocations, customImportLocations, generators) {
   var importLocations = (0, _ramda.merge)(baseImportLocations, customImportLocations);
   return generators.map(function (_ref3) {
     var _ref4 = _slicedToArray(_ref3, 2),
@@ -120,7 +120,7 @@ var codeGen = function codeGen(baseDir, typeLocations, customImportLocations, ge
         code = _ref6[1],
         deps = _ref6[2];
 
-    var headerCode = header(baseDir, typeLocations, importLocations, deps);
+    var headerCode = header(baseDir, preamble, typeLocations, importLocations, deps);
     var hoistedCode = hoist(deps.hoists);
     return [file, _prettier["default"].format("".concat(headerCode, "\n").concat(hoistedCode, "export default ").concat(code), prettierArgs), deps];
   });
@@ -128,8 +128,8 @@ var codeGen = function codeGen(baseDir, typeLocations, customImportLocations, ge
 
 exports.codeGen = codeGen;
 
-var fileGen = function fileGen(baseDir, typeLocations, customImportLocations, generators) {
-  return Promise.all(codeGen(baseDir, typeLocations, customImportLocations, generators).map(function (_ref7) {
+var fileGen = function fileGen(baseDir, preamble, typeLocations, customImportLocations, generators) {
+  return Promise.all(codeGen(baseDir, preamble, typeLocations, customImportLocations, generators).map(function (_ref7) {
     var _ref8 = _slicedToArray(_ref7, 2),
         file = _ref8[0],
         code = _ref8[1];

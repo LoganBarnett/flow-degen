@@ -23,31 +23,39 @@ var _default = function _default(json) {
       var error = baseDir;
       return new Error('Could not deserialize field "baseDir": ' + error.message);
     } else {
-      var typeLocations = (0, _deserializer.deField)('typeLocations', _deserializer.deMapping.bind(null, _deserializer.deString, _deserializer.deString), json.typeLocations);
+      var generatedPreamble = (0, _deserializer.deField)('generatedPreamble', _deserializer.deString, json.generatedPreamble);
 
-      if (typeLocations instanceof Error) {
-        var _error = typeLocations;
-        return new Error('Could not deserialize field "typeLocations": ' + _error.message);
+      if (generatedPreamble instanceof Error) {
+        var _error = generatedPreamble;
+        return new Error('Could not deserialize field "generatedPreamble": ' + _error.message);
       } else {
-        var importLocations = (0, _deserializer.deField)('importLocations', _deserializer.deMapping.bind(null, _deserializer.deString, _deserializer.deString), json.importLocations);
+        var typeLocations = (0, _deserializer.deField)('typeLocations', _deserializer.deMapping.bind(null, _deserializer.deString, _deserializer.deString), json.typeLocations);
 
-        if (importLocations instanceof Error) {
-          var _error2 = importLocations;
-          return new Error('Could not deserialize field "importLocations": ' + _error2.message);
+        if (typeLocations instanceof Error) {
+          var _error2 = typeLocations;
+          return new Error('Could not deserialize field "typeLocations": ' + _error2.message);
         } else {
-          var generators = (0, _deserializer.deField)('generators', _deserializer.deList.bind(null, _deserializer.deList.bind(null, _deserializer.deString)), json.generators);
+          var importLocations = (0, _deserializer.deField)('importLocations', _deserializer.deMapping.bind(null, _deserializer.deString, _deserializer.deString), json.importLocations);
 
-          if (generators instanceof Error) {
-            var _error3 = generators;
-            return new Error('Could not deserialize field "generators": ' + _error3.message);
+          if (importLocations instanceof Error) {
+            var _error3 = importLocations;
+            return new Error('Could not deserialize field "importLocations": ' + _error3.message);
           } else {
-            var result = {
-              baseDir: baseDir,
-              typeLocations: typeLocations,
-              importLocations: importLocations,
-              generators: generators
-            };
-            return result;
+            var generators = (0, _deserializer.deField)('generators', _deserializer.deList.bind(null, _deserializer.deList.bind(null, _deserializer.deString)), json.generators);
+
+            if (generators instanceof Error) {
+              var _error4 = generators;
+              return new Error('Could not deserialize field "generators": ' + _error4.message);
+            } else {
+              var result = {
+                baseDir: baseDir,
+                generatedPreamble: generatedPreamble,
+                typeLocations: typeLocations,
+                importLocations: importLocations,
+                generators: generators
+              };
+              return result;
+            }
           }
         }
       }

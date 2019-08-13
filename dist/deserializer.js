@@ -13,7 +13,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
  * we don't really care and can assume the string 'undefined' in that case.
  */
 var stringify = function stringify(x) {
-  return JSON.stringify(x) || 'undefined';
+  var s = JSON.stringify(x);
+  return s === undefined ? 'undefined' : s;
 };
 
 exports.stringify = stringify;
@@ -52,6 +53,8 @@ exports.deField = deField;
 
 var deList = function deList(elementDeserializer, value) {
   if (Array.isArray(value)) {
+    // "any" gets added to the E | Error here in the Array. It is not understood
+    // why this is.
     var list = value.map(elementDeserializer); // Flow doesn't support type refinement with Array.filter. See:
     // https://github.com/facebook/flow/issues/1414
     // const errors = results.filter(r => r instanceof Error)

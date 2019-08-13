@@ -17,7 +17,7 @@ var configType = {
 };
 
 var _default = function _default() {
-  return (0, _generator.degenObject)(configType, [(0, _generator.degenField)('baseDir', (0, _generator.degenString)()), (0, _generator.degenField)('typeLocations', (0, _generator.degenMapping)((0, _generator.degenString)(), (0, _generator.degenString)())), (0, _generator.degenField)('importLocations', (0, _generator.degenMapping)((0, _generator.degenString)(), (0, _generator.degenString)())), (0, _generator.degenField)('generators', (0, _generator.degenList)((0, _generator.degenList)((0, _generator.degenFilePath)())))]);
+  return (0, _generator.degenObject)(configType, [(0, _generator.degenField)('baseDir', (0, _generator.degenString)()), (0, _generator.degenField)('generatedPreamble', (0, _generator.degenString)()), (0, _generator.degenField)('typeLocations', (0, _generator.degenMapping)((0, _generator.degenString)(), (0, _generator.degenString)())), (0, _generator.degenField)('importLocations', (0, _generator.degenMapping)((0, _generator.degenString)(), (0, _generator.degenString)())), (0, _generator.degenField)('generators', (0, _generator.degenList)((0, _generator.degenList)((0, _generator.degenFilePath)())))]);
 };
 
 exports["default"] = _default;
