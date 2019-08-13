@@ -5,7 +5,11 @@
  * which is a possible value from mixed. For the purposes of giving us a string,
  * we don't really care and can assume the string 'undefined' in that case.
  */
-export const stringify = (x: mixed): string => JSON.stringify(x) || 'undefined'
+export const stringify = (x: mixed): string => {
+  const s = JSON.stringify(x)
+  return s === undefined ? 'undefined' : s
+}
+
 
 export const deBool = (x: mixed): bool | Error => {
   if(typeof x != 'boolean') {
@@ -44,7 +48,9 @@ export const deList = <E>(
   value: mixed,
 ): Array<E> | Error => {
   if (Array.isArray(value)) {
-    const list = value.map(elementDeserializer)
+    // "any" gets added to the E | Error here in the Array. It is not understood
+    // why this is.
+    const list: Array<E | Error> = value.map(elementDeserializer)
     // Flow doesn't support type refinement with Array.filter. See:
     // https://github.com/facebook/flow/issues/1414
     // const errors = results.filter(r => r instanceof Error)

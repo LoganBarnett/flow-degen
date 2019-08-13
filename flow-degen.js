@@ -20,6 +20,9 @@ require('@babel/register')(babelConfig)
 
 const R = require('ramda')
 
+// We can't really type check against these results. If we export fileGen as
+// part of the library's proper interface, we should be able to achieve type
+// safety again.
 const fileGen = require('./dist/base-gen.js').fileGen
 const configDeserializer = require('./dist/config.deserializer.js').default
 
@@ -39,12 +42,16 @@ else {
   }
   else {
     const generators = R.map(
-      ([out, p]) => [out, require(path.resolve(process.env.PWD, p)).default() ],
+      ([out, p]) => [
+        out,
+        require(path.resolve(process.env.PWD || '', p)).default(),
+      ],
       configFile.generators,
     )
 
     fileGen(
       configFile.baseDir,
+      configFile.generatedPreamble,
       configFile.typeLocations,
       configFile.importLocations,
       generators,

@@ -1,5 +1,6 @@
 {
   "baseDir": "",
+  "generatedPreamble": "",
   "generators": [
     ["src/config.deserializer.js", "./src/config-generator.js"]
   ],

@@ -5,7 +5,7 @@
   "homepage": "https://github.com/loganbarnett/flow-degen",
   "main": "dist/index.js",
   "bin": {
-    "flow-degen": "./flow-degen"
+    "flow-degen": "./flow-degen.js"
   },
   "repository": "git@github.com:LoganBarnett/flow-degen.git",
   "author": "Logan Barnett <logustus@gmail.com>",
@@ -26,6 +26,7 @@
   "peerDependencies": {},
   "dependencies": {},
   "scripts": {
-    "test": "yarn babel-node test/exhaustive-union.js"
+    "generate-config": "yarn babel-node flow-degen meta-config.json",
+    "test": "yarn babel-node test/exhaustive-union.js && yarn babel-node test/flow-strict.js && yarn babel-node test/preamble.js"
   }
 }

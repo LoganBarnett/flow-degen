@@ -118,6 +118,7 @@ const stringToFilePromise = (fileName: string, s: string): Promise<void> => {
 // whether or not they are types.
 const header = <CustomType: string, CustomImport: string>(
   baseDir: string,
+  preamble: string,
   typeLocations: {[type: CustomType]: string},
   importLocations: {[type: CustomImport]: string},
   deps: CodeGenDep<CustomType, CustomImport>,
@@ -128,7 +129,8 @@ const header = <CustomType: string, CustomImport: string>(
   }
   const trimBaseDir = trimBase.bind(null, baseDir)
 
-  return '// @flow\n'
+  return preamble
+    + '\n// @flow strict\n'
     + addJavascriptImports(
       // Workaround for https://github.com/facebook/flow/issues/5457.
       merge({}, typeLocations),
@@ -155,6 +157,7 @@ const hoist = (hoists: Array<string>): string => {
 
 export const codeGen = <CustomType: string, CustomImport: string>(
   baseDir: string,
+  preamble: string,
   typeLocations: {[type: CustomType]: string},
   customImportLocations: {[type: CustomImport]: string},
   generators: Array<[string, DeserializerGenerator<CustomType, CustomImport>]>,
@@ -163,7 +166,13 @@ export const codeGen = <CustomType: string, CustomImport: string>(
   return generators
     .map(([ file, [ de, deps ] ]) => [ file, de(), deps ])
     .map(([ file, code, deps ]: [string, string, CodeGenDep<CustomType, CustomImport>]) => {
-      const headerCode = header(baseDir, typeLocations, importLocations, deps)
+      const headerCode = header(
+        baseDir,
+        preamble,
+        typeLocations,
+        importLocations,
+        deps,
+      )
       const hoistedCode = hoist(deps.hoists)
       return [
         file,
@@ -178,12 +187,13 @@ export const codeGen = <CustomType: string, CustomImport: string>(
 
 export const fileGen = <CustomType: string, CustomImport: string>(
   baseDir: string,
+  preamble: string,
   typeLocations: {[type: CustomType]: string},
   customImportLocations: {[type: CustomImport]: string},
   generators: Array<[string, DeserializerGenerator<CustomType, CustomImport>]>,
 ) => {
   return Promise.all(
-    codeGen(baseDir, typeLocations, customImportLocations, generators)
+    codeGen(baseDir, preamble, typeLocations, customImportLocations, generators)
       .map(([ file, code ]) => stringToFilePromise(file, code))
   )
   .then(() => {

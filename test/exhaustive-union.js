@@ -64,6 +64,7 @@ const generator = () => degenSum(unionType, 'kind', unionKindType, [
 
 const code = codeGen(
   __dirname,
+  '',
   {
     'Union': __filename,
     'UnionKind': __filename,
