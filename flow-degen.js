@@ -24,7 +24,7 @@ const R = require('ramda')
 // part of the library's proper interface, we should be able to achieve type
 // safety again.
 const fileGen = require('./dist/base-gen.js').fileGen
-const configDeserializer = require('./dist/config.deserializer.js').default
+const configDeserializer = require('./dist/config.deserializer.js').deConfig
 
 const configPath = process.argv[2]
 if(typeof configPath != 'string') {
@@ -42,17 +42,39 @@ else {
   }
   else {
     const generators = R.map(
-      ([out, p]) => [
-        out,
-        require(path.resolve(process.env.PWD || '', p)).default(),
-      ],
+      (generator) => {
+        const module = require(
+          path.resolve(process.env.PWD || '', generator.inputFile),
+        )
+        return [
+          generator.outputFile,
+          R.map(
+            k => [ generator.exports[k], module[k]() ],
+            R.filter(
+              k => R.keys(generator.exports).includes(k),
+              R.keys(module),
+            ),
+          ),
+        ]
+      },
       configFile.generators,
     )
 
     fileGen(
       configFile.baseDir,
       configFile.generatedPreamble,
-      configFile.typeLocations,
+      R.merge(
+        configFile.typeLocations,
+        R.mergeAll(
+          R.reduce(
+            R.concat,
+            [],
+            R.map(g => {
+              return R.map(e => ({ [e]: g.outputFile }), R.values(g.exports))
+            }, configFile.generators),
+          ),
+        ),
+      ),
       configFile.importLocations,
       generators,
     )

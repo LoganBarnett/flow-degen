@@ -80,7 +80,7 @@ const code = codeGen(
     deBool: '../src/deserializer.js',
   },
   [
-    [ path.resolve(__dirname, 'exhuastive-union-test-output.js'), generator() ],
+    [ path.resolve(__dirname, 'exhuastive-union-test-output.js'), [[ 'union', generator() ]] ],
   ],
 )[0][1]
 

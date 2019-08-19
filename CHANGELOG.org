@@ -7,6 +7,36 @@
 #+tags:
 
 * changelog
+** Upcoming
+*** Breaking
+    + The =generators= configuration key is now a new structure and will break
+      old consumers' configuration files. Instead of a flat input/output file
+      mapping, each pairing is represented with a structure that indicates
+      (still) an input and output file, but also input and output exports.
+      Consumers will now need to identify the exports to be used (rather than
+      assuming =default=) and indicate how those identifiers map to a generated
+      version.
+    + Consumers can no longer import the =default= of generated files. Instead
+      consumers must indicate specific exported identifiers.
+    + There is a verbiage change in the works to stop using the word
+      "deserializer" due to its inaccuracy. Instead "refiner" is preferred. The
+      input these generated functions take is already deserialized. "Validator"
+      is a poor term. While =flow-degen= might be able to ensure the =structure=
+      of data is valid, there are many ways to go about being valid such as
+      accounting for state machine transitions or making sure a user token
+      hasn't expired. Perhaps one could make the generated functions do these
+      things, this has not been the focus of this library. Ultimately
+      =flow-degen= is about taking in some unknown input and emitting an
+      expected structure or an error detailing why the input doesn't satisfy the
+      requirements.
+*** Additions
+    + An example of how to use =degenString= has been added.
+    + An example of how to put together a custom generator has been added.
+    + Configuration files can now indicate multiple refiners per file (both
+      input and output). This paves the way for recursion - a feature in the
+      near future. It also allows the refiner code to become significantly
+      smaller when arranged for re-use.
+*** Fixes
 ** 0.9.0
 *** Breaking
     + The new =generatedPreamble= field is required and will break

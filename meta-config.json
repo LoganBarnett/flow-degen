@@ -2,7 +2,13 @@
   "baseDir": "",
   "generatedPreamble": "",
   "generators": [
-    ["src/config.deserializer.js", "./src/config-generator.js"]
+    {
+      "inputFile": "./src/config-generator.js",
+      "outputFile": "src/config.deserializer.js",
+      "exports": {
+        "degenConfig": "deConfig"
+      }
+    }
   ],
   "importLocations": {
     "deField": "./deserializer.js",
@@ -11,6 +17,7 @@
     "deString": "./deserializer.js"
   },
   "typeLocations": {
-    "Config": "./config-generator.js"
+    "Config": "./config-generator.js",
+    "ConfigGenerator": "./config-generator.js"
   }
 }

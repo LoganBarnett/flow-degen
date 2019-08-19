@@ -42,7 +42,13 @@ yarn add -E -D flow-degen
     "baseDir": "",
     "generatedPreamble": "",
     "generators": [
-      ["deserializer-output-file.js", "./dir/generator-input-file.js"]
+      {
+        "exports": {
+          "fooGenerator": "fooRefiner",
+        },
+        "inputFile": "./dir/generator-input-file.js",
+        "outputFile": "deserializer-output-file.js"
+      }
     ],
     "importLocations": {
       "importName": "./dir/runtime.js"
@@ -61,9 +67,33 @@ yarn add -E -D flow-degen
     rules (such as disabling ESLint's [[https://eslint.org/docs/rules/no-unused-expressions][no-used-expressions]] rule which can be an
     issue for disjoint unions).
 *** generators
-    This is a list of deserializers and their associated generators as tuples.
-    You can have multiple here to cover all of your deserializers for your
-    project.
+    This is a list of generators and how they produce refiners. Generators here
+    have the following structure:
+
+    #+begin_src json
+      {
+        "exports": {
+          "fooGenerator": "fooRefiner",
+          "barGenerator": "barRefiner",
+          "bazGenerator": "bazRefiner"
+        },
+        "inputFile": "foo-generator.js",
+        "outputFile": "foo-refiner.js"
+      }
+    #+end_src
+
+**** exports
+     =exports= is a mapping of identifiers exported from the generator file that
+     =flow-degen= can find, and it maps to identifiers it will generate as
+     refiners for that associated generator. In the sample configuration,
+     =fooGenerator= is found in =foo-generator.js=, and it will emit a
+     =fooRefiner= to =foo-refiner.js= that you can then =import= or =require=
+     to use.
+
+     =exports= is also implicitly added to =importLocations= such that your
+     refiners can refer to each other, and even achieve recursive calls if your
+     structure requires recursion.
+
 *** importLocations
     This is a mapping of import names (which must be valid JavaScript
     identifiers) to files. The identifiers must map to =export= entities inside
@@ -101,6 +131,30 @@ yarn add -E -D flow-degen
      of the object and a list of fields that =degenField= can emit.
 **** degenString
      The =degenString= deserializer simply deserializes a value as a =string=.
+
+     Say we have a =name-generator.js=:
+     #+begin_src js
+       import { degenString } from 'flow-degen'
+       export const nameGenerator = () => degenString()
+     #+end_src
+
+     And this is configured to produce a =name-refiner.js=, this is how it would
+     be used:
+     #+begin_src js
+       import { nameRefiner } from './name-refiner.js'
+
+       // This could be an HTTP POST handler on a server, or a form handler on a UI
+       handleUnsanitizedInput((input) => {
+         const nameOrError: string | Error = nameRefiner(input)
+         if(nameOrError instanceof Error) {
+           console.error(nameOrError)
+         } else {
+           // Here can we use the name.
+           storeName(nameOrError)
+         }
+       })
+     #+end_src
+
 **** degenSentinelValue
      This deserializer is to be used in conjunction with =degenSum= to produce
      deserializers for a sum type. This represents one member of the union. It
@@ -142,6 +196,40 @@ yarn add -E -D flow-degen
       =./src/generator.js= does this for you. It is found by =flow-degen=
       consumers as a top-level export (=import { mergeDeps } from
       'flow-degen'=).
+
+    Let's create an custom generator example where we have an uppercase string.
+
+    #+begin_src js
+      import {
+        degenString,
+        mergeDeps,
+        type DeserializerGenerator,
+      } from 'flow-degen'
+      import { uppercase } from './my-string-utils.js'
+
+      export const degenUppercaseString = <CustomType: string, CustomImport: string>(
+      ): DeserializerGenerator<CustomType, CustomImport> => {
+        const [ stringGenerator, stringDeps ] = degenString()
+        return [
+          `(x: mixed): string => {
+             return uppercase(${stringGenerator})
+          }`,
+          mergeDeps(
+            stringDeps,
+            {
+              hoists: [],
+              imports: [ 'uppercase' ],
+              types: [],
+            },
+          ),
+        ]
+      }
+    #+end_src
+
+    Custom generators are no different from the built-in generators. The
+    built-in generators in =src/generators.js= can be used as more complex
+    examples for building your own generators.
+
 *** command line
 Once installed, you can use the =flow-degen= script to generate your
 deserializers:
