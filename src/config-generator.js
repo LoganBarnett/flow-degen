@@ -10,22 +10,33 @@ import {
   degenType,
 } from './generator.js'
 
+export type ConfigGenerator = {
+  exports: {[string]: string},
+  inputFile: string,
+  outputFile: string,
+}
+
 export type Config<CustomType: string, CustomImport: string> = {
   baseDir: string,
   generatedPreamble: string,
   // TODO: Support tuples.
-  generators: Array<Array<string>>,
+  generators: Array<ConfigGenerator>,
   importLocations: {[CustomImport]: string},
   typeLocations: {[CustomType]: string},
 }
 
 const stringType = { name: 'string', typeParams: [] }
 const configType = { name: 'Config', typeParams: [ stringType, stringType ]}
+const configGeneratorType = { name: 'ConfigGenerator', typeParams: []}
 
-export default () => degenObject<string, string>(configType, [
-  degenField('baseDir', degenString()),
+export const degenConfig = () => degenObject<string, string>(configType, [
+  degenField('baseDir', degenFilePath()),
   degenField('generatedPreamble', degenString()),
-  degenField('typeLocations', degenMapping(degenString(), degenString())),
-  degenField('importLocations', degenMapping(degenString(), degenString())),
-  degenField('generators', degenList(degenList(degenFilePath()))),
+  degenField('typeLocations', degenMapping(degenString(), degenFilePath())),
+  degenField('importLocations', degenMapping(degenString(), degenFilePath())),
+  degenField('generators', degenList(degenObject(configGeneratorType, [
+    degenField('exports', degenMapping(degenString(), degenString())),
+    degenField('inputFile', degenFilePath()),
+    degenField('outputFile', degenFilePath()),
+  ]))),
 ])

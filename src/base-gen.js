@@ -19,6 +19,7 @@ import {
   type DeserializerGenerator,
   degenType,
   flattenTypes,
+  mergeDeps,
 } from './generator.js'
 
 const prettierArgs = {
@@ -160,12 +161,24 @@ export const codeGen = <CustomType: string, CustomImport: string>(
   preamble: string,
   typeLocations: {[type: CustomType]: string},
   customImportLocations: {[type: CustomImport]: string},
-  generators: Array<[string, DeserializerGenerator<CustomType, CustomImport>]>,
+  generators: Array<[string, Array<[ string, DeserializerGenerator<CustomType, CustomImport>]>]>,
 ): Array<[ string, string, CodeGenDep<CustomType, CustomImport> ]> => {
   const importLocations = merge(baseImportLocations, customImportLocations)
   return generators
-    .map(([ file, [ de, deps ] ]) => [ file, de(), deps ])
-    .map(([ file, code, deps ]: [string, string, CodeGenDep<CustomType, CustomImport>]) => {
+    .map(([ file, degens ]) => {
+      const codeAndDeps
+        : Array<[string, CodeGenDep<CustomType, CustomImport>]>
+        = degens.map(([name, degen ]) => {
+          const [ fn, deps ] = degen
+          return [`export const ${name} = ` + fn(), deps]
+        })
+      const code = codeAndDeps.map(([code, ]) => code).join('\n')
+      const deps = codeAndDeps.map(([, deps]) => deps).reduce(mergeDeps, {
+        hoists: [],
+        imports: [],
+        types: [],
+      })
+
       const headerCode = header(
         baseDir,
         preamble,
@@ -174,12 +187,11 @@ export const codeGen = <CustomType: string, CustomImport: string>(
         deps,
       )
       const hoistedCode = hoist(deps.hoists)
+      const finalCode = `${headerCode}\n${hoistedCode}\n${code}`
+      // console.error(finalCode)
       return [
         file,
-        prettier.format(
-          `${headerCode}\n${hoistedCode}export default ${code}`,
-          prettierArgs,
-        ),
+        prettier.format(finalCode, prettierArgs),
         deps,
       ]
     })
@@ -190,7 +202,7 @@ export const fileGen = <CustomType: string, CustomImport: string>(
   preamble: string,
   typeLocations: {[type: CustomType]: string},
   customImportLocations: {[type: CustomImport]: string},
-  generators: Array<[string, DeserializerGenerator<CustomType, CustomImport>]>,
+  generators: Array<[string, Array<[ string, DeserializerGenerator<CustomType, CustomImport>]>]>,
 ) => {
   return Promise.all(
     codeGen(baseDir, preamble, typeLocations, customImportLocations, generators)

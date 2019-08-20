@@ -15,7 +15,7 @@ const code = codeGen(
   {},
   { stringify: '../src/deserializer.js', deString: '../src/deserializer.js' },
   [
-    [ path.resolve(__dirname, 'preamble-output.js'), generator() ],
+    [ path.resolve(__dirname, 'preamble-output.js'), [[ 'preamble', generator() ]] ],
   ],
 )[0][1]
 

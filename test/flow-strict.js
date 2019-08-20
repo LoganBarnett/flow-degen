@@ -14,7 +14,7 @@ const code = codeGen(
   {},
   { stringify: '../src/deserializer.js', deString: '../src/deserializer.js' },
   [
-    [ path.resolve(__dirname, 'flow-strict-output.js'), generator() ],
+    [ path.resolve(__dirname, 'flow-strict-output.js'), [['strict', generator() ]] ],
   ],
 )[0][1]
 
