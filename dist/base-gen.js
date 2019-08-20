@@ -109,30 +109,50 @@ var codeGen = function codeGen(baseDir, preamble, typeLocations, customImportLoc
   return generators.map(function (_ref3) {
     var _ref4 = _slicedToArray(_ref3, 2),
         file = _ref4[0],
-        _ref4$ = _slicedToArray(_ref4[1], 2),
-        de = _ref4$[0],
-        deps = _ref4$[1];
+        degens = _ref4[1];
 
-    return [file, de(), deps];
-  }).map(function (_ref5) {
-    var _ref6 = _slicedToArray(_ref5, 3),
-        file = _ref6[0],
-        code = _ref6[1],
-        deps = _ref6[2];
+    var codeAndDeps = degens.map(function (_ref5) {
+      var _ref6 = _slicedToArray(_ref5, 2),
+          name = _ref6[0],
+          degen = _ref6[1];
 
+      var _degen = _slicedToArray(degen, 2),
+          fn = _degen[0],
+          deps = _degen[1];
+
+      return ["export const ".concat(name, " = ") + fn(), deps];
+    });
+    var code = codeAndDeps.map(function (_ref7) {
+      var _ref8 = _slicedToArray(_ref7, 1),
+          code = _ref8[0];
+
+      return code;
+    }).join('\n');
+    var deps = codeAndDeps.map(function (_ref9) {
+      var _ref10 = _slicedToArray(_ref9, 2),
+          deps = _ref10[1];
+
+      return deps;
+    }).reduce(_generator.mergeDeps, {
+      hoists: [],
+      imports: [],
+      types: []
+    });
     var headerCode = header(baseDir, preamble, typeLocations, importLocations, deps);
     var hoistedCode = hoist(deps.hoists);
-    return [file, _prettier["default"].format("".concat(headerCode, "\n").concat(hoistedCode, "export default ").concat(code), prettierArgs), deps];
+    var finalCode = "".concat(headerCode, "\n").concat(hoistedCode, "\n").concat(code); // console.error(finalCode)
+
+    return [file, _prettier["default"].format(finalCode, prettierArgs), deps];
   });
 };
 
 exports.codeGen = codeGen;
 
 var fileGen = function fileGen(baseDir, preamble, typeLocations, customImportLocations, generators) {
-  return Promise.all(codeGen(baseDir, preamble, typeLocations, customImportLocations, generators).map(function (_ref7) {
-    var _ref8 = _slicedToArray(_ref7, 2),
-        file = _ref8[0],
-        code = _ref8[1];
+  return Promise.all(codeGen(baseDir, preamble, typeLocations, customImportLocations, generators).map(function (_ref11) {
+    var _ref12 = _slicedToArray(_ref11, 2),
+        file = _ref12[0],
+        code = _ref12[1];
 
     return stringToFilePromise(file, code);
   })).then(function () {

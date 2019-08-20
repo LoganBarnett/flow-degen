@@ -9,6 +9,10 @@
 * changelog
 ** Upcoming
 *** Breaking
+*** Additions
+*** Fixes
+** 0.10.0
+*** Breaking
     + The =generators= configuration key is now a new structure and will break
       old consumers' configuration files. Instead of a flat input/output file
       mapping, each pairing is represented with a structure that indicates
