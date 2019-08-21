@@ -12,6 +12,7 @@ import {
 } from 'ramda'
 import fs from 'fs'
 import prettier from 'prettier'
+import path from 'path'
 import {
   type CodeGenDep,
   type DeImport,
@@ -118,6 +119,7 @@ const stringToFilePromise = (fileName: string, s: string): Promise<void> => {
 // Then we can have one list of import locations, and a state to indicate
 // whether or not they are types.
 const header = <CustomType: string, CustomImport: string>(
+  file: string,
   baseDir: string,
   preamble: string,
   typeLocations: {[type: CustomType]: string},
@@ -140,15 +142,15 @@ const header = <CustomType: string, CustomImport: string>(
       reduce(
         concat,
         [],
-        deps.types.map(flattenTypes)).map(prop('name')).map(trimBaseDir),
+        deps.types.map(flattenTypes)).map(prop('name')),
     )
     + addJavascriptImports(
       // Workaround for https://github.com/facebook/flow/issues/5457.
       merge({}, importLocations),
-      [],
+      Object.keys(importLocations).filter(i => importLocations[i] == file),
       'import',
       // Workaround for https://github.com/facebook/flow/issues/5457.
-      deps.imports.map(trimBaseDir),
+      deps.imports,
     ) + '\n'
 }
 
@@ -180,6 +182,7 @@ export const codeGen = <CustomType: string, CustomImport: string>(
       })
 
       const headerCode = header(
+        file,
         baseDir,
         preamble,
         typeLocations,
@@ -190,7 +193,7 @@ export const codeGen = <CustomType: string, CustomImport: string>(
       const finalCode = `${headerCode}\n${hoistedCode}\n${code}`
       // console.error(finalCode)
       return [
-        file,
+        path.join(baseDir, file),
         prettier.format(finalCode, prettierArgs),
         deps,
       ]

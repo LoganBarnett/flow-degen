@@ -4,7 +4,7 @@
   "generators": [
     {
       "inputFile": "./src/config-generator.js",
-      "outputFile": "src/config.deserializer.js",
+      "outputFile": "./src/config.deserializer.js",
       "exports": {
         "degenConfig": "deConfig"
       }

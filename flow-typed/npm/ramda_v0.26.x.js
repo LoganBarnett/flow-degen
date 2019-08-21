@@ -1,5 +1,5 @@
-// flow-typed signature: ac594e8fbc33283faf39f9bfbce9f3e9
-// flow-typed version: fd46b9e715/ramda_v0.26.x/flow_>=v0.76.x
+// flow-typed signature: c3ace1f254e9ede96949fd04e5019c25
+// flow-typed version: c6154227d1/ramda_v0.26.x/flow_>=v0.76.x <=v0.103.x
 
 /* eslint-disable no-unused-vars, no-redeclare */
 
@@ -577,10 +577,8 @@ declare module ramda {
     n: number,
   ): (xs: Array<T>) => Array<Array<T>>;
 
-  declare function append<E>(x: E, xs: Array<E>): Array<E>;
-  declare function append<E>(
-    x: E,
-  ): (xs: Array<E>) => Array<E>;
+  declare function append<A, E>(A, $ReadOnlyArray<E>): Array<E|A>;
+  declare function append<A, E>(A): CurriedFunction1<$ReadOnlyArray<E>, Array<E|A>>;
 
   declare function prepend<E>(x: E, xs: Array<E>): Array<E>;
   declare function prepend<E>(
