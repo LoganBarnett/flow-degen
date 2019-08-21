@@ -41,10 +41,11 @@ else {
     process.exit(1)
   }
   else {
+    const baseDir = configFile.baseDir || process.env.PWD || ''
     const generators = R.map(
       (generator) => {
         const module = require(
-          path.resolve(process.env.PWD || '', generator.inputFile),
+          path.resolve(baseDir, generator.inputFile),
         )
         return [
           generator.outputFile,
@@ -63,8 +64,9 @@ else {
     fileGen(
       configFile.baseDir,
       configFile.generatedPreamble,
+      configFile.typeLocations,
       R.merge(
-        configFile.typeLocations,
+        configFile.importLocations,
         R.mergeAll(
           R.reduce(
             R.concat,
@@ -75,7 +77,6 @@ else {
           ),
         ),
       ),
-      configFile.importLocations,
       generators,
     )
   }
