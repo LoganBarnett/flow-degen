@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 
 /**
  * JSON.stringify could returned undefined if the input itself is undefined,
