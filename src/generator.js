@@ -356,3 +356,12 @@ export const de = <CustomType: string, CustomImport: string>(
 ): string => {
   return `genHook.genDe${type} = ${deserializer[0]()}`
 }
+
+export const degenRefiner = <CustomType: string, CustomImport: string>(
+  refinerSymbol: CustomImport,
+): DeserializerGenerator<CustomType, CustomImport> => {
+  return [
+    () => refinerSymbol,
+    { types: [], imports: [refinerSymbol], hoists: [] },
+  ]
+}
