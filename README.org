@@ -119,6 +119,38 @@ yarn add -E -D flow-degen
 **** degenList
      Requires a deserializer to be used for the element type, which is provided
      as its only argument. This will produce an =Array<T>=.
+
+     Suppose we have a =foos-generator.js=:
+
+     #+begin_src js
+       import { degenList, degenNumber} from 'flow-degen'
+
+       export const foosGenerator = () => degenList(degenNumber())
+     #+end_src
+
+     Upon importing the emitted file, you can now refine into an =Array= of
+     =number=:
+
+     #+begin_src js
+       import { deFoos } from './foos-refiner.js'
+
+       deFoos([1, 2, 3]) // Produces [1, 2, 3].
+       deFoos('farsnaggle') // Produces Error object.
+
+       declare var someInput: mixed
+
+       const eitherResult = deFoos(someInput)
+
+       if(eitherResult instanceof Error) {
+         // Here the result did not refine correctly.
+         console.error('How did this happen?', eitherResult)
+       } else {
+         // Now you have an Array of number.
+         console.log(eitherResult.map(x => x + 1))
+       }
+     #+end_src
+
+
 **** degenMapping
      A "mapping" is of the type ={[A]: B}= although usually it will be
      ={[string]: mixed}=. It takes a key deserializer and a value deserializer
@@ -170,6 +202,47 @@ yarn add -E -D flow-degen
      (which could be anything). It checks for the literal equivalence of that
      value. This can be helpful when using Flow's sentinel properties for sum
      types of objects.
+**** degenRefiner
+     The =degenRefiner= refiner simply imports a symbol for use. This allows
+     recursion to work when the refined data structure is recursive. Also it
+     allows for reuse of other refiners of any kind. This reduces the size of
+     generated refiners significantly. Otherwise the refiners are inlined.
+
+     Suppose we have a =foo-generator.js= whose generator builds the =deFoo=
+     refiner:
+     #+begin_src js
+       import { degenObject, degenField, degenString } from 'flow-degen'
+
+       const fooType = { name: 'Foo', typeParams: [] }
+       export const fooGenerator = () => degenObject(fooType, [
+         degenField('first', degenString()),
+         degenField('last', degenString()),
+       ])
+     #+end_src
+
+     And we have a =bar-generator.js=:
+     #+begin_src js
+       import {
+         degenObject,
+         degenField,
+         degenString,
+         degenRefiner,
+       } from 'flow-degen'
+
+       const barType = { name: 'Bar', typeParams: [] }
+       export const fooGenerator = () => degenObject(barType, [
+         degenField('foo', 'deFoo'),
+       ])
+     #+end_src
+
+     Here the generator will simply invoke =deFoo= to refine the =foo= field.
+     Any import, type, and hoist information will be made available in this
+     refiner.
+
+     Note that this symbol must be one that is managed by =flow-degen= in your
+     configuration file, or your configuration file must specify in the
+     =imports= how to find this symbol.
+
 *** building custom deserializer generators
     All deserializers must satisfy the following contract:
 
