@@ -11,6 +11,21 @@
 *** Breaking
 *** Additions
 *** Fixes
+** 0.11.0
+*** Breaking
+    + It's possible your =baseDir= usage is now broken due to building upon
+      =flow-degen='s broken behavior regarding it.
+*** Additions
+    + =degenRefiner= added to link to other refiners by symbol name. This
+      effectively turns into an =import= statement and a function call in the
+      generated refiner code. The symbol name can allow for recursive calls, and
+      will significantly reduce the size of refiners instead of inlining the
+      entire refiner. Thanks @gyrfalcon!
+    + A usage example has been added for =degenList=.
+*** Fixes
+    + How =baseDir= in the configuration is used is now fixed.
+    + Consumption of =flow-degen= should actually work when you use =strict=
+      options in your repository.
 ** 0.10.0
 *** Breaking
     + The =generators= configuration key is now a new structure and will break

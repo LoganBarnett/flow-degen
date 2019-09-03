@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.mergeDeps = mergeDeps;
-exports.de = exports.degenValue = exports.degenType = exports.flattenTypes = exports.degenSum = exports.degenSentinelValue = exports.degenNumber = exports.degenBool = exports.degenEnum = exports.degenFilePath = exports.degenString = exports.degenMapping = exports.degenList = exports.degenField = exports.degenObject = exports.maybeMap = void 0;
+exports.degenRefiner = exports.de = exports.degenValue = exports.degenType = exports.flattenTypes = exports.degenSum = exports.degenSentinelValue = exports.degenNumber = exports.degenBool = exports.degenEnum = exports.degenFilePath = exports.degenString = exports.degenMapping = exports.degenList = exports.degenField = exports.degenObject = exports.maybeMap = void 0;
 
 var _ramda = require("ramda");
 
@@ -283,3 +283,15 @@ var de = function de(type, deserializer) {
 };
 
 exports.de = de;
+
+var degenRefiner = function degenRefiner(refinerSymbol) {
+  return [function () {
+    return refinerSymbol;
+  }, {
+    types: [],
+    imports: [refinerSymbol],
+    hoists: []
+  }];
+};
+
+exports.degenRefiner = degenRefiner;

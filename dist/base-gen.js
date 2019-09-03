@@ -11,6 +11,8 @@ var _fs = _interopRequireDefault(require("fs"));
 
 var _prettier = _interopRequireDefault(require("prettier"));
 
+var _path = _interopRequireDefault(require("path"));
+
 var _generator = require("./generator.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
@@ -87,7 +89,7 @@ var stringToFilePromise = function stringToFilePromise(fileName, s) {
 // whether or not they are types.
 
 
-var header = function header(baseDir, preamble, typeLocations, importLocations, deps) {
+var header = function header(file, baseDir, preamble, typeLocations, importLocations, deps) {
   var trimBase = function trimBase(base, s) {
     var i = s.indexOf(base);
     return i > -1 ? s.substring(i) : s;
@@ -95,9 +97,11 @@ var header = function header(baseDir, preamble, typeLocations, importLocations, 
 
   var trimBaseDir = trimBase.bind(null, baseDir);
   return preamble + '\n// @flow strict\n' + addJavascriptImports( // Workaround for https://github.com/facebook/flow/issues/5457.
-  (0, _ramda.merge)({}, typeLocations), globalTypes, 'import type', (0, _ramda.reduce)(_ramda.concat, [], deps.types.map(_generator.flattenTypes)).map((0, _ramda.prop)('name')).map(trimBaseDir)) + addJavascriptImports( // Workaround for https://github.com/facebook/flow/issues/5457.
-  (0, _ramda.merge)({}, importLocations), [], 'import', // Workaround for https://github.com/facebook/flow/issues/5457.
-  deps.imports.map(trimBaseDir)) + '\n';
+  (0, _ramda.merge)({}, typeLocations), globalTypes, 'import type', (0, _ramda.reduce)(_ramda.concat, [], deps.types.map(_generator.flattenTypes)).map((0, _ramda.prop)('name'))) + addJavascriptImports( // Workaround for https://github.com/facebook/flow/issues/5457.
+  (0, _ramda.merge)({}, importLocations), Object.keys(importLocations).filter(function (i) {
+    return importLocations[i] == file;
+  }), 'import', // Workaround for https://github.com/facebook/flow/issues/5457.
+  deps.imports) + '\n';
 };
 
 var hoist = function hoist(hoists) {
@@ -138,11 +142,11 @@ var codeGen = function codeGen(baseDir, preamble, typeLocations, customImportLoc
       imports: [],
       types: []
     });
-    var headerCode = header(baseDir, preamble, typeLocations, importLocations, deps);
+    var headerCode = header(file, baseDir, preamble, typeLocations, importLocations, deps);
     var hoistedCode = hoist(deps.hoists);
     var finalCode = "".concat(headerCode, "\n").concat(hoistedCode, "\n").concat(code); // console.error(finalCode)
 
-    return [file, _prettier["default"].format(finalCode, prettierArgs), deps];
+    return [_path["default"].join(baseDir, file), _prettier["default"].format(finalCode, prettierArgs), deps];
   });
 };
 
