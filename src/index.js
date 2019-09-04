@@ -20,6 +20,7 @@ export {
   degenList,
   degenNumber,
   degenObject,
+  degenRefiner,
   degenSentinelValue,
   degenString,
   degenSum,
