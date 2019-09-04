@@ -87,6 +87,12 @@ Object.defineProperty(exports, "degenObject", {
     return _generator.degenObject;
   }
 });
+Object.defineProperty(exports, "degenRefiner", {
+  enumerable: true,
+  get: function get() {
+    return _generator.degenRefiner;
+  }
+});
 Object.defineProperty(exports, "degenSentinelValue", {
   enumerable: true,
   get: function get() {

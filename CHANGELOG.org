@@ -11,6 +11,11 @@
 *** Breaking
 *** Additions
 *** Fixes
+** 0.12.0
+*** Breaking
+*** Additions
+*** Fixes
+    + Actually expose =degenRefiner= for consumption.
 ** 0.11.0
 *** Breaking
     + It's possible your =baseDir= usage is now broken due to building upon
