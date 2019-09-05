@@ -1,0 +1,37 @@
+// @flow strict
+
+export {
+  deBool,
+  deField,
+  deList,
+  deMapping,
+  deNumber,
+  deString,
+  stringify,
+} from './src/deserializer.js'
+// export {
+//   codeGen,
+// } from './src/base-gen.js'
+export {
+  degenBool,
+  degenEnum,
+  degenField,
+  degenFilePath,
+  degenList,
+  degenNumber,
+  degenObject,
+  degenRefiner,
+  degenSentinelValue,
+  degenString,
+  degenSum,
+  degenType,
+  degenValue,
+  mergeDeps,
+} from './src/generator.js'
+export type {
+  CodeGenDep,
+  DeImport,
+  DeType,
+  DeserializerGenerator,
+  MetaType,
+} from './src/generator.js'
