@@ -11,6 +11,10 @@
 *** Breaking
 *** Additions
 *** Fixes
+** 0.13.0
+*** Breaking
+*** Additions
+*** Fixes
     + Fix an issue where =flow-degen= could no longer be recognized as an
       imported module by Flow. This is related to recent changes to make
       =flow-degen= work when =strict= is enabled. It is not well understood what
