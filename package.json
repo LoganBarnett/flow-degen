@@ -27,6 +27,6 @@
   "dependencies": {},
   "scripts": {
     "generate-config": "yarn babel-node flow-degen meta-config.json",
-    "test": "yarn babel-node test/exhaustive-union.js && yarn babel-node test/flow-strict.js && yarn babel-node test/preamble.js && yarn babel-node test/imports.js && yarn babel-node test/base-path.js"
+    "test": "yarn babel-node test/test-suite.js"
   }
 }
