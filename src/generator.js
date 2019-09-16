@@ -365,3 +365,27 @@ export const degenRefiner = <CustomType: string, CustomImport: string>(
     { types: [], imports: [refinerSymbol], hoists: [] },
   ]
 }
+
+export const degenMaybe = <CustomType: string, CustomImport: string>(
+  refinerType: MetaType<CustomType, CustomImport>,
+  refiner: DeserializerGenerator<CustomType, CustomImport>,
+): DeserializerGenerator<CustomType, CustomImport> => {
+  const [code, dependencies] = refiner
+
+  return [
+    () => {
+      return `
+        (x: mixed): ?${refinerType.name} | Error => {
+          if (x != null) {
+            const refiner = ${code()}
+
+            return refiner(x)
+          } else {
+            return null
+          }
+        }
+      `
+    },
+    mergeDeps(dependencies, { types: [ refinerType ], imports: [], hoists: [] }),
+  ]
+}
