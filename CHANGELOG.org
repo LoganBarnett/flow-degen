@@ -10,6 +10,8 @@
 ** Upcoming
 *** Breaking
 *** Additions
+    + =degenMaybe= added to create refiners for maybe types (type Foo =
+      ?string).
 *** Fixes
 ** 0.13.0
 *** Breaking
