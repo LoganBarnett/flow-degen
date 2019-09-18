@@ -155,6 +155,49 @@ yarn add -E -D flow-degen
      A "mapping" is of the type ={[A]: B}= although usually it will be
      ={[string]: mixed}=. It takes a key deserializer and a value deserializer
      for =A= and =B= respectively.
+**** degenMaybe
+     The =degenMaybe= generator is for creating refiners for maybe types (e.g.
+     type Foo = ?string). The maybe type will still require additional
+     refinement after passing through the refiner. For example, given the type:
+
+     #+begin_src js
+       export type Foo = {
+         bar: ?string,
+       }
+     #+end_src
+
+     And generator:
+     #+begin_src js
+       import { degenObject, degenField, degenMaybe, degenString } from 'flow-degen'
+
+       const fooType = { name: 'Foo', typeParams: [] }
+       const stringType = { name: 'string', typeParams: [] }
+       export const fooGenerator = () => degenObject(fooType, [
+         degenField('bar', degenMaybe(stringType, degenString())),
+       ])
+     #+end_src
+
+     The refiner would be used like so:
+     #+begin_src js
+       import { deFoo } from './foo-refiner.js'
+
+       declare var someInput: mixed
+
+       const eitherResult = deFoo(someInput)
+
+       if(eitherResult instanceof Error) {
+         // Here the result did not refine correctly.
+         console.error('How did this happen?', eitherResult)
+       } else {
+         // We have a foo, but bar may not have been present
+         if (eitherResult.bar != null) {
+           console.log(eitherResult.bar + ' was refined')
+         } else {
+           console.log('result had a null bar')
+         }
+       }
+     #+end_src
+
 **** degenNumber
      The =degenNumber= deserializer simply deserializes a value as a =number=.
 **** degenObject

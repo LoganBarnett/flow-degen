@@ -375,7 +375,7 @@ export const degenMaybe = <CustomType: string, CustomImport: string>(
   return [
     () => {
       return `
-        (x: mixed): ?${refinerType.name} | Error => {
+        (x: mixed): ?${typeHeader(refinerType)} | Error => {
           if (x != null) {
             const refiner = ${code()}
 
