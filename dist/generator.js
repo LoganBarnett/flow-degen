@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.mergeDeps = mergeDeps;
-exports.degenRefiner = exports.de = exports.degenValue = exports.degenType = exports.flattenTypes = exports.degenSum = exports.degenSentinelValue = exports.degenNumber = exports.degenBool = exports.degenEnum = exports.degenFilePath = exports.degenString = exports.degenMapping = exports.degenList = exports.degenField = exports.degenObject = exports.maybeMap = void 0;
+exports.degenMaybe = exports.degenRefiner = exports.de = exports.degenValue = exports.degenType = exports.flattenTypes = exports.degenSum = exports.degenSentinelValue = exports.degenNumber = exports.degenBool = exports.degenEnum = exports.degenFilePath = exports.degenString = exports.degenMapping = exports.degenList = exports.degenField = exports.degenObject = exports.maybeMap = void 0;
 
 var _ramda = require("ramda");
 
@@ -295,3 +295,19 @@ var degenRefiner = function degenRefiner(refinerSymbol) {
 };
 
 exports.degenRefiner = degenRefiner;
+
+var degenMaybe = function degenMaybe(refinerType, refiner) {
+  var _refiner = _slicedToArray(refiner, 2),
+      code = _refiner[0],
+      dependencies = _refiner[1];
+
+  return [function () {
+    return "\n        (x: mixed): ?".concat(typeHeader(refinerType), " | Error => {\n          if (x != null) {\n            const refiner = ").concat(code(), "\n\n            return refiner(x)\n          } else {\n            return null\n          }\n        }\n      ");
+  }, mergeDeps(dependencies, {
+    types: [refinerType],
+    imports: [],
+    hoists: []
+  })];
+};
+
+exports.degenMaybe = degenMaybe;

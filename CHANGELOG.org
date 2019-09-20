@@ -10,6 +10,10 @@
 ** Upcoming
 *** Breaking
 *** Additions
+*** Fixes
+** 0.14.0
+*** Breaking
+*** Additions
     + =degenMaybe= added to create refiners for maybe types (type Foo =
       ?string).
 *** Fixes
