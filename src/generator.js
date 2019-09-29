@@ -15,7 +15,10 @@ import { stringify } from './deserializer.js'
 export type DeType =
   | 'Object'
   | 'bool'
+  | 'boolean'
+  | 'function'
   | 'number'
+  | 'object'
   | 'string'
 
 export type DeImport =
@@ -84,7 +87,7 @@ export const degenObject = <CustomType: string, CustomImport: string>(
     // No.
     const names = map(([n]) => n, fields)
     const fieldDeserializers = map(([, f]) => f[0](), fields)
-    const typeDeserializer = degenType(deType)
+    const typeDeserializer = degenType<CustomType, CustomImport>(deType)
     const typeName = typeDeserializer[0]()
     return `(json: mixed): ${typeName} | Error => {
   if(json === null) {
@@ -139,7 +142,10 @@ export const degenList = <CustomType: string, CustomImport: string>(
   const [elementDeserializer, deps] = element
   return [() => {
     return `deList.bind(null, ${elementDeserializer()})`
-  }, mergeDeps(deps, { types: [], imports: ['deList'], hoists: [] }),
+  }, mergeDeps<CustomType, CustomImport>(
+    deps,
+    { types: [], imports: ['deList'], hoists: [] },
+  ),
   ]
 }
 
@@ -152,7 +158,7 @@ export const degenMapping = <CustomType: string, CustomImport: string>(
   const deps = { types: [], imports: ['deMapping'], hoists: []}
   return [
     () => `deMapping.bind(null, ${keyDeserializer()}, ${valueDeserializer()})`,
-    mergeDeps(mergeDeps(keyDeps, valueDeps), deps),
+    mergeDeps<CustomType, CustomImport>(mergeDeps(keyDeps, valueDeps), deps),
   ]
 }
 
@@ -181,7 +187,7 @@ export const degenEnum = <CustomType: string, CustomImport: string>(
     // Needs triple equals here.
     const check = values.map(x => `'${x}'`).join(' === either || ') + ' === either'
     const oneOf = values.join(', ')
-    const typeName = degenType(deType)[0]()
+    const typeName = degenType<CustomType, CustomImport>(deType)[0]()
     return `(v: mixed): ${typeName} | Error => {
   const either = ${stringGen()}(v)
   if(either instanceof Error) {
@@ -197,7 +203,10 @@ export const degenEnum = <CustomType: string, CustomImport: string>(
   }
 }`
   },
-    mergeDeps(deps, { types: [ deType ], imports: [], hoists: [] })
+    mergeDeps<CustomType, CustomImport>(
+      deps,
+      { types: [ deType ], imports: [], hoists: [] },
+    )
   ]
 }
 
@@ -255,10 +264,13 @@ export const degenSum = <CustomType: string, CustomImport: string>(
   props: Array<DeSentinelProp<CustomType, CustomImport>>,
 ): DeserializerGenerator<CustomType, CustomImport> => {
   const fnName = `${deType.name}Refine`
-  const typeHeader = degenType(deType)[0]()
+  const typeHeader = degenType<CustomType, CustomImport>(deType)[0]()
   // Type declaration needs to be outside the function or we get "name already
   // bound"
-  const enumGen = degenEnum(sentinelFieldType, props.map(p => p.key))
+  const enumGen = degenEnum<CustomType, CustomImport>(
+    sentinelFieldType,
+    props.map(p => p.key),
+  )
   const hoist = `
 // Exhaustive union checks don't work, but there is a workaround.
 // See: https://github.com/facebook/flow/issues/3790
@@ -315,7 +327,10 @@ export const flattenTypes = <CustomType: string, CustomImport: string>(
   type: MetaType<CustomType, CustomImport>,
 ): Array<MetaType<CustomType, CustomImport>> => {
   const nestedTypes = type.typeParams.map(flattenTypes)
-  return reduce(concat, [ type ], nestedTypes)
+  return reduce<
+    Array<MetaType<CustomType, CustomImport>>,
+    Array<MetaType<CustomType, CustomImport>>,
+  >(concat, [ type ], nestedTypes)
 }
 
 export const degenType = <CustomType: string, CustomImport: string>(
@@ -386,6 +401,9 @@ export const degenMaybe = <CustomType: string, CustomImport: string>(
         }
       `
     },
-    mergeDeps(dependencies, { types: [ refinerType ], imports: [], hoists: [] }),
+    mergeDeps<CustomType, CustomImport>(
+      dependencies,
+      { types: [ refinerType ], imports: [], hoists: [] },
+    ),
   ]
 }
