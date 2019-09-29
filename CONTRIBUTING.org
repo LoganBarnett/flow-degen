@@ -1,0 +1,75 @@
+#+title:     CONTRIBUTING
+#+author:    Logan Barnett
+#+email:     logustus@gmail.com
+#+date:      <2018-05-11 Fri>
+#+language:  en
+#+file_tags: readme
+
+* code of conduct
+  Make sure to have a familiarity with the [[file:./CODE_OF_CONDUCT.org][code of conduct]] for this project.
+  Failure to do so does not exempt behavior.
+
+* writing code
+  While none of these are hard rules in building a pull request, trying to keep
+  in spirit of them as much as reasonably possible will ensure the smoothest
+  path to getting your pull request merged.
+** ensure the pull request is desired
+   Adding clarification and examples to documentation is an example of changes
+   that are generally welcome at any time. Adding UI components to =flow-degen=
+   wouldn't be a desirable change to the project though. Use your judgment when
+   adding pull requests to save yourself some time. If you're not sure if the
+   change would be immediately welcome, consider opening a ticket in the issue
+   tracker as a means of starting discussion. Describe what problem you're
+   encountering and would like to solve with a pull request.
+
+** code formatting
+   This is a work in progress, but going forward there will be hooks in place
+   that cause edited files to be run through =prettier.js= to achieve desired
+   formatting as part of a commit hook. Do not bypass this hook without
+   justification in the code and the pull request description itself.
+
+** document surprises
+   Assume other readers of the code will have a basic familiarity of JavaScript,
+   Flow, and problem domain of =flow-degen=. Anything that is done that wouldn't
+   be obvious to the reader should be documented with a code comment, and
+   possibly called out in the pull request or even formal documentation (such as
+   the README).
+
+** document changes in the changelog
+   The [[file:./CHANGELOG.org][changelog]] has a list of old changes as well as upcoming ones. In the
+   "Upcoming" section you can describe the changes you made across the
+   categories listed there. Upon doing a release, all changes listed in
+   "Upcoming" will be moved to the release version, and a new "Upcoming" will be
+   built. Having your description of changes in "Upcoming" right from the start
+   ensures a smooth release process, and provides a human friendly means of
+   summarizing what has changed in a given version, and actions a consumer might
+   need to take on to account for your changes.
+
+** document any API changes/additions
+   As part of your pull request, you might need to change the API of a function,
+   or add new functions that are exposed to consumers. These changes should be
+   reflected in the documentation of the API (currently the README), with a
+   textual description along with an example.
+
+** provide an automated test for your changes
+   Generally we want to prove that your changes work, and future changes do not
+   break today's changes. As such we need automated tests to ensure the
+   functionality. The general guideline is that if we can remove the non-test
+   changes in your pull request and test suite still passes, your tests are
+   inadequate and need improvement. Some changes are difficult to write tests
+   for. We are eager to help put together tests with you, and sometimes tests
+   are nonsensical or impractical to put together. When in doubt about providing
+   tests, asking in the pull request or related ticket is the best course of
+   action.
+
+** don't commit dist
+   The =dist= directory is committed during the release process as a form of
+   transparency and a means of allowing consumption of the library outside of a
+   formal release on =npm=. While in practice any changes you commit to =dist=
+   will be overridden during the release process, we ask that you try not to
+   commit =dist=. In other projects this has been a means of attack, and it also
+   adds files that reviewers must ignore during the release process.
+
+   If you need to commit =dist= for your own testing/consumption purposes,
+   consider making a branch off of your pull request with the =-dist= suffix,
+   and consuming that branch.
