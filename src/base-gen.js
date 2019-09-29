@@ -38,7 +38,7 @@ const baseImportLocations: {[import: DeImport]: string} = {
   stringify: 'flow-degen',
 }
 
-const globalTypes = [
+const globalTypes: $ReadOnlyArray<DeType> = [
   'bool',
   'boolean',
   'function',
@@ -49,7 +49,7 @@ const globalTypes = [
 
 // Use this to convert types to a series of file paths.
 // type StringMap<T: string> = {[key: T]: string}
-type KeyedLists = {[key: string]: Array<string>}
+type KeyedLists = {[key: string]: $ReadOnlyArray<string>}
 
 const uniqueFromLookup = (
   lookup: {[string]: string},
@@ -89,7 +89,10 @@ const addJavascriptImports = <T: string>(
   importKeyword: string,
   imports: $ReadOnlyArray<string>,
 ): string => {
-  const locationsWithImports = reduce(
+  const locationsWithImports = reduce<
+      {[string]: $ReadOnlyArray<string>},
+      string,
+    >(
     partial(uniqueFromLookup, [ locations, globalsToIgnore ]),
     {},
     imports
@@ -175,7 +178,9 @@ export const codeGen = <CustomType: string, CustomImport: string>(
           return [`export const ${name} = ` + fn(), deps]
         })
       const code = codeAndDeps.map(([code, ]) => code).join('\n')
-      const deps = codeAndDeps.map(([, deps]) => deps).reduce(mergeDeps, {
+      const deps = codeAndDeps.map(([, deps]) => deps).reduce<
+          CodeGenDep<CustomType, CustomImport>,
+        >(mergeDeps, {
         hoists: [],
         imports: [],
         types: [],
@@ -205,7 +210,10 @@ export const fileGen = <CustomType: string, CustomImport: string>(
   preamble: string,
   typeLocations: {[type: CustomType]: string},
   customImportLocations: {[type: CustomImport]: string},
-  generators: Array<[string, Array<[ string, DeserializerGenerator<CustomType, CustomImport>]>]>,
+  generators: Array<[
+    string,
+    Array<[ string, DeserializerGenerator<CustomType, CustomImport>]>,
+  ]>,
 ) => {
   return Promise.all(
     codeGen(baseDir, preamble, typeLocations, customImportLocations, generators)
