@@ -28,6 +28,7 @@ export {
   degenType,
   degenValue,
   mergeDeps,
+  typeHeader,
 } from './generator.js'
 export type {
   CodeGenDep,
