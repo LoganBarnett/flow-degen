@@ -310,7 +310,7 @@ const ${fnName} = (x: mixed): ${typeHeader} | Error => {
   )))]
 }
 
-const typeHeader = <CustomType: string, CustomImport: string>(
+export const typeHeader = <CustomType: string, CustomImport: string>(
   type: MetaType<CustomType, CustomImport>,
 ): string => {
   if(type.typeParams.length > 0) {
