@@ -12,10 +12,10 @@ import {
 
 const runTest = (testFile: string): Promise<void> => {
   return new Promise((resolve, reject) => {
-    const process = exec(`yarn babel-node test/${testFile}`, {}, (error, stdout, sterr) => {
+    const process = exec(`yarn babel-node test/${testFile}`, {}, (error, stdout, stderr) => {
       console.log(`Running test ${testFile}`)
       if (error) {
-        console.error('Error running test', testFile, stdout.toString())
+        console.error('Error running test', testFile, stderr.toString())
         reject(new Error('test exit code: ' + String(error.code)))
       } else {
         resolve()
