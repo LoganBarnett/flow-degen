@@ -2,6 +2,7 @@
 import assert from 'assert'
 import path from 'path'
 import {
+  type DeImport,
   type DeserializerGenerator,
   type MetaType,
   degenField,
@@ -23,9 +24,19 @@ export const importedFn = (): Foo => {
    }
  }
 
-const customDegen = <CustomType: string, CustomImport: string>(
-  refinerType: MetaType<CustomType, CustomImport>,
-  refinerGenerator: DeserializerGenerator<CustomType, CustomImport>,
+type CustomImportTestType =
+  | 'Foo'
+
+type CustomImportTestImport =
+  | 'importedFn'
+  // adding DeImport to the union shouldn't be necessary (and wasn't necessary
+  // in the real implementation this was adapted from), but flow isn't
+  // recognizing deField and deString on lines 75 and 76 otherwise
+  | DeImport
+
+const customDegen = (
+  refinerType: MetaType<CustomImportTestType, CustomImportTestImport>,
+  refinerGenerator: DeserializerGenerator<CustomImportTestType, CustomImportTestImport>,
 ) => {
   const [refinerCode, deps] = refinerGenerator
   const header = typeHeader(refinerType)
@@ -39,7 +50,7 @@ const customDegen = <CustomType: string, CustomImport: string>(
         }
       `
     },
-    mergeDeps<CustomType, CustomImport>(
+    mergeDeps<CustomImportTestType, CustomImportTestImport>(
       deps,
       { types: [], imports: ['importedFn'], hoists: [] },
     ),
@@ -49,7 +60,7 @@ const customDegen = <CustomType: string, CustomImport: string>(
 const stringType = { name: 'string', typeParams: [] }
 const fooType = { name: 'Foo', typeParams: [] }
 
-const generator = () => customDegen<string, string>(
+const generator = () => customDegen(
   fooType,
   degenObject(fooType, [degenField('bar', degenString())]),
 )
