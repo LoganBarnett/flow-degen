@@ -11,6 +11,7 @@ const generator = () => degenString()
 
 const result = codeGen(
   __dirname,
+  true,
   '',
   {
     'Foo': __filename,

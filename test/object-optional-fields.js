@@ -1,47 +1,44 @@
 // @flow strict
+
 import assert from 'assert'
 import path from 'path'
 import {
   degenField,
-  degenMaybe,
+  degenNumber,
   degenObject,
   degenString,
 } from '../src/generator.js'
 import { runFlow } from './utils.js'
 import { codeGen } from '../src/base-gen.js'
 
-export type ParamType<T: string> = {
-  foo: T,
+export type Obj = {
+  required: string,
+  optional?: number,
 }
 
-const stringType = { name: 'string', typeParams: [] }
-const paramTypeType = { name: 'ParamType', typeParams: [ stringType ] }
-
-const maybeStringGenerator = () => degenMaybe(stringType, degenString())
-const paramTypeGenerator = () => degenMaybe(paramTypeType, degenObject(
-  paramTypeType,
-  [
-    degenField('foo', degenString()),
-  ],
-  [],
-))
+const objType = { name: 'Obj', typeParams: [] }
+const objGenerator = () => degenObject(objType, [
+  degenField('required', degenString()),
+], [
+  degenField('optional', degenNumber()),
+])
 
 const code = codeGen(
   __dirname,
   true,
   '',
   {
-    'ParamType': __filename,
+    'Obj': __filename,
   },
   {
     deField: '../src/deserializer.js',
+    deNumber: '../src/deserializer.js',
     deString: '../src/deserializer.js',
   },
   [
     [
-      path.resolve(__dirname, 'maybe-output.js'), [
-        [ 'maybeStringRefiner', maybeStringGenerator() ],
-        [ 'paramTypeRefiner', paramTypeGenerator() ],
+      path.resolve(__dirname, 'object-optional-fields-output.js'), [
+        [ 'objRefiner', objGenerator() ],
       ],
     ],
   ],

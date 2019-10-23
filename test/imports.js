@@ -28,23 +28,24 @@ const barType = { name: 'Bar', typeParams: [] }
 const bazType = { name: 'Baz', typeParams: [] }
 
 const fooGenerator = () => degenObject(fooType, [
-    degenField('a', degenString()),
-  ])
+  degenField('a', degenString()),
+], [])
 
 const barGenerator = () => degenObject(barType, [
-    degenField('b', degenRefiner('deFoo')),
-    degenField('bb', degenRefiner('deBaz'))
-  ])
+  degenField('b', degenRefiner('deFoo')),
+  degenField('bb', degenRefiner('deBaz'))
+], [])
 
 const bazGenerator = () => degenObject(bazType, [
-    degenField('c', degenString()),
-  ])
+  degenField('c', degenString()),
+], [])
 
 const fooBarOutputFile = path.resolve(__dirname, 'foobar-imports-output.js')
 const bazOutputFile = path.resolve(__dirname, 'baz-imports-output.js')
 
 const code = codeGen(
   __dirname,
+  true,
   '',
   {
     "Foo": __filename,

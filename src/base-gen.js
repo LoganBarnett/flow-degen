@@ -163,6 +163,7 @@ const hoist = (hoists: Array<string>): string => {
 
 export const codeGen = <CustomType: string, CustomImport: string>(
   baseDir: string,
+  prettify: bool,
   preamble: string,
   typeLocations: {[type: CustomType]: string},
   customImportLocations: {[type: CustomImport]: string},
@@ -199,7 +200,7 @@ export const codeGen = <CustomType: string, CustomImport: string>(
       // console.error(finalCode)
       return [
         path.join(baseDir, file),
-        prettier.format(finalCode, prettierArgs),
+        prettify ? prettier.format(finalCode, prettierArgs) : finalCode,
         deps,
       ]
     })
@@ -207,6 +208,7 @@ export const codeGen = <CustomType: string, CustomImport: string>(
 
 export const fileGen = <CustomType: string, CustomImport: string>(
   baseDir: string,
+  prettify: bool,
   preamble: string,
   typeLocations: {[type: CustomType]: string},
   customImportLocations: {[type: CustomImport]: string},
@@ -216,7 +218,14 @@ export const fileGen = <CustomType: string, CustomImport: string>(
   ]>,
 ) => {
   return Promise.all(
-    codeGen(baseDir, preamble, typeLocations, customImportLocations, generators)
+    codeGen(
+      baseDir,
+      prettify,
+      preamble,
+      typeLocations,
+      customImportLocations,
+      generators,
+    )
       .map(([ file, code ]) => stringToFilePromise(file, code))
   )
   .then(() => {

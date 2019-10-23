@@ -77,18 +77,23 @@ export function mergeDeps<CustomType: string, CustomImport: string>(
 
 export const degenObject = <CustomType: string, CustomImport: string>(
   deType: MetaType<CustomType, CustomImport>,
-  fields: Array<FieldDeserializer<CustomType, CustomImport>>,
+  requiredFields: Array<FieldDeserializer<CustomType, CustomImport>>,
+  optionalFields: Array<FieldDeserializer<CustomType, CustomImport>>,
 ): DeserializerGenerator<CustomType, CustomImport> => {
-  const fieldDeps = reduce(mergeDeps, { imports: [], types: [], hoists: [] },
-    map(([, [, deps]]) => deps, fields)
+  const fieldDeps = reduce(
+    mergeDeps,
+    { imports: [], types: [], hoists: [] },
+    map(([, [, deps]]) => deps, requiredFields)
+      .concat(map(([, [, deps]]) => deps, optionalFields)),
   )
   return [() => {
     // Is there an R.unzip?
     // No.
-    const names = map(([n]) => n, fields)
-    const fieldDeserializers = map(([, f]) => f[0](), fields)
-    const typeDeserializer = degenType<CustomType, CustomImport>(deType)
-    const typeName = typeDeserializer[0]()
+    const requiredFieldNames = map(([n]) => n, requiredFields)
+    const requiredFieldRefiners = map(([, f]) => f[0](), requiredFields)
+    const optionalFieldRefiners = map(([, f]) => f[0](), optionalFields)
+    const typeRefiner = degenType<CustomType, CustomImport>(deType)
+    const typeName = typeRefiner[0]()
     return `(json: mixed): ${typeName} | Error => {
   if(json === null) {
     return new Error('Could not deserialize json because the value is null.')
@@ -100,12 +105,30 @@ export const degenObject = <CustomType: string, CustomImport: string>(
     return new Error('Could not deserialize object "' + String(json) + '"')
   }
   else {
-    ${fieldDeserializers.join('\n')}
+    ${requiredFields.map(([name, refiner]) => {
+// The { is matched towards the end of the generator.
+return `const ${name} = ${refiner[0]()}
+if(${name} instanceof Error) {
+  return ${name}
+} else {
+`
+    }).join('\n')}
       const result: ${typeName} = {
-        ${names.join(',\n')}
+        ${requiredFieldNames.join(',\n')}
       }
+      ${optionalFields.map(([name, refiner]) => {
+        return `\
+if(json.hasOwnProperty('${name}')) {
+  const ${name} = ${refiner[0]()}
+  if(${name} instanceof Error) {
+    return ${name}
+  } else {
+    result.${name} = ${name}
+  }
+}`
+      }).join('\n')}
       return result
-    ${tail(fieldDeserializers.map(() => '}')).join('')}
+    ${tail(requiredFieldRefiners.map(() => '}')).join('')}
     }
   }
 }
@@ -116,6 +139,22 @@ export const degenObject = <CustomType: string, CustomImport: string>(
 }
 
 export const degenField = <CustomType: string, CustomImport: string>(
+  fieldName: string,
+  deserializer: DeserializerGenerator<CustomType, CustomImport>,
+): FieldDeserializer<CustomType, CustomImport> => {
+  const [deserializerFn, deps] = deserializer
+  return [fieldName, [() => {
+    // the `else {` is terminated in deObject during the join.
+    return `deField('${fieldName}',
+        (${deserializerFn()}),
+        json.${fieldName})`
+  },
+    mergeDeps(deps, { types: [], imports: ['deField'], hoists: [] }),
+  ]]
+}
+
+
+export const degenOptionalField = <CustomType: string, CustomImport: string>(
   fieldName: string,
   deserializer: DeserializerGenerator<CustomType, CustomImport>,
 ): FieldDeserializer<CustomType, CustomImport> => {

@@ -38,5 +38,5 @@ export const degenConfig = () => degenObject<string, string>(configType, [
     degenField('exports', degenMapping(degenString(), degenString())),
     degenField('inputFile', degenFilePath()),
     degenField('outputFile', degenFilePath()),
-  ]))),
-])
+  ], []))),
+], [])

@@ -50,20 +50,21 @@ const generator = () => degenSum(unionType, 'kind', unionKindType, [
   degenSentinelValue('foo', degenObject(fooType, [
     degenField('a', degenString()),
     degenField('kind', degenValue('string', 'foo')),
-  ])),
+  ], [])),
   degenSentinelValue('bar', degenObject(barType, [
     degenField('b', degenNumber()),
     degenField('kind', degenValue('string', 'bar')),
-  ])),
+  ], [])),
   // This is the value we expect to cause a failure.
   degenSentinelValue('baz', degenObject(bazType, [
     degenField('c', degenBool()),
     degenField('kind', degenValue('string', 'baz')),
-  ])),
+  ], [])),
 ])
 
 const code = codeGen(
   __dirname,
+  true,
   '',
   {
     'Union': __filename,
