@@ -206,7 +206,51 @@ yarn add -E -D flow-degen
 **** degenObject
      An "Object" can be thought of as a collection of "fields". See =degenField=
      as these go together except for empty objects. =degenObject= takes the type
-     of the object and a list of fields that =degenField= can emit.
+     of the object and a list of required fields that =degenField= can emit, and
+     a second list of =degenField= results that represent the optional fields.
+
+     Assume the object =Cat=.
+
+     #+begin_src js
+
+       export type Cat = {
+         // Cats always have demands.
+         demands: number,
+         // Cats can have no love sometimes.
+         love?: number,
+       }
+
+       const catType = { name: 'Cat', typeParams: [] }
+       const catGenerator = () => degenObject(catType, [
+         degenField('demands', degenNumber()),
+       ], [
+         degenField('love', degenNumber()),
+       ])
+     #+end_src
+
+     It is well known that cats always have =demands= but only sometimes have
+     =love=. It is fallacious to assume =love= will always be present.
+
+     #+begin_src js
+       import { catRefiner } from './cat-refiner.js'
+
+       // It's pretty easy to get an unsanitized cat from anywhere, really.
+       handleUnsanitizedCat((input) => {
+         const catOrError: string | Error = catRefiner(input)
+         if(catOrError instanceof Error) {
+           goGetADog()
+         } else {
+           // We have a cat! But we can't expect love.
+           // Flow will also settle for a null check for love.
+           if(catOrError.hasOwnProperty('love')) {
+             console.log(`My cat loves me ${catOrError.love} love units!`)
+           } else {
+             console.log('My cat does not have any love for me at all...')
+           }
+         }
+       })
+     #+end_src
+
 **** degenString
      The =degenString= deserializer simply deserializes a value as a =string=.
 

@@ -10,6 +10,7 @@ const generator = () => degenString()
 
 const code = codeGen(
   __dirname,
+  true,
   '',
   {},
   { stringify: '../src/deserializer.js', deString: '../src/deserializer.js' },

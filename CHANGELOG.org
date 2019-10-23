@@ -9,7 +9,20 @@
 * changelog
 ** Upcoming
 *** Breaking
+    1. =degenObject= now takes a list of optional fields as a new argument at
+       the end of the argument list. The simplest thing to do is add =[]= as the
+       last parameter to your calls, and you will have the same behavior as
+       before.
+    2. =codeGen= takes a =prettify= flag as the second argument. Use =true= for
+       this argument to keep your original behavior.
 *** Additions
+    1. The =degenObject= generator now takes a list of optional fields so any
+       field that is an optional type (not necessarily a maybe type) can also be
+       supported by the system.
+    2. Consumers of =codeGen= may now indicate whether or not to prettify the
+       code when running. This can be helpful when running tests and you want
+       the generated output to display and a syntax error causes =prettier= to
+       fail. This way you can still limp by and see the generated code.
 *** Fixes
     1. Reduce the amount of type inferencing =flow-degen= relies upon. Consumers
        can easily run into a "recursion limit exceeded" issue with Flow. To work

@@ -11,6 +11,7 @@ const generator = () => degenString()
 
 const code = codeGen(
   __dirname,
+  true,
   '/* Preamble */',
   {},
   { stringify: '../src/deserializer.js', deString: '../src/deserializer.js' },
