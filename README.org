@@ -22,7 +22,7 @@ Pros:
 Cons:
 1. =flow-degen= does not currently provide a list of deserializer errors, but
    instead bails on the first error.
-3. There is potentially a memory/storage footprint concern for non-trivial sizes
+2. There is potentially a memory/storage footprint concern for non-trivial sizes
    and amounts of deserializers. A minifier may significantly mitigate this con.
    Using =degenRefiner= to reference other refiners can also reduce the
    footprint by calling other refiners instead of duplicating refinement logic
