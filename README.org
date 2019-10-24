@@ -22,8 +22,11 @@ Pros:
 Cons:
 1. =flow-degen= does not currently provide a list of deserializer errors, but
    instead bails on the first error.
-2. There is potentially a memory/storage footprint concern for non-trivial sizes
+3. There is potentially a memory/storage footprint concern for non-trivial sizes
    and amounts of deserializers. A minifier may significantly mitigate this con.
+   Using =degenRefiner= to reference other refiners can also reduce the
+   footprint by calling other refiners instead of duplicating refinement logic
+   in multiple places.
 
 ** installation
 
@@ -274,7 +277,7 @@ yarn add -E -D flow-degen
 
        const barType = { name: 'Bar', typeParams: [] }
        export const fooGenerator = () => degenObject(barType, [
-         degenField('foo', 'deFoo'),
+         degenField('foo', degenRefiner('deFoo')),
        ])
      #+end_src
 
@@ -294,14 +297,22 @@ yarn add -E -D flow-degen
       CustomImport: string>=, which is a tuple of a function that returns a
       =string= (the code) and a =CodeGenDep<CustomType: string, CustomImport:
       string>=. The exacts of these types can be found in =./src/generator.js=.
-    + The function that returns a string must accept a =mixed= as a parameter.
+    + The code returned by the function must accept a =mixed= as a parameter.
       This is your input provided from your mystery variable. It is assumed to
       be "deserialized" already in the sense that it is not a string of JSON but
       perhaps the result of =JSON.parse=.
     + If any imports are used, they must be enumerated in the =imports= list of
-      the =CodeGenDep=.
+      the =CodeGenDep=. Any imports used by the generated function will also
+      need to be part of the =CustomImport= type parameter of the generator as
+      well as included in =importLocations= in your =flow-degen=
+      configuration file (adding an import to =importLocations= is not necessary
+      if the import is an export from a refiner defined in your =flow-degen=
+      config).
     + If any type imports are used, they must be enumerated in the =types= list
-      of the =CodeGenDep=.
+      of the =CodeGenDep=. Any types used by the generated function will also
+      need to be part of the =CustomType= type parameter of the generator as
+      well as included in =typeLocations= in your =flow-degen= configuration
+      file.
     + Consider that your generated code could likely be embedded deep within a
       function chain. If you need some "root" access to the module to declare
       things such as throw-away types, use the =hoists= list to place code.
@@ -321,29 +332,49 @@ yarn add -E -D flow-degen
         mergeDeps,
         type DeserializerGenerator,
       } from 'flow-degen'
-      import { uppercase } from './my-string-utils.js'
+      import {
+        type UppercaseString,
+        uppercase,
+      } from './my-string-utils.js'
 
-      export const degenUppercaseString = <CustomType: string, CustomImport: string>(
-      ): DeserializerGenerator<CustomType, CustomImport> => {
+      type UppercaseGeneratorType =
+        | 'UppercaseString'
+
+      type UppercaseGeneratorImport =
+        | 'uppercase'
+
+      export const degenUppercaseString = (
+      ): DeserializerGenerator<UppercaseGeneratorType, UppercaseGeneratorImport> => {
         const [ stringGenerator, stringDeps ] = degenString()
         return [
-          `(x: mixed): string => {
-             return uppercase(${stringGenerator})
-          }`,
+          () => {
+            return `(x: mixed): UppercaseString => {
+               return uppercase(${stringGenerator()})
+            }`
+          },
           mergeDeps(
             stringDeps,
             {
               hoists: [],
               imports: [ 'uppercase' ],
-              types: [],
+              types: [ { name: 'UppercaseString', typeParams: [] } ],
             },
           ),
         ]
       }
     #+end_src
 
-    Custom generators are no different from the built-in generators. The
-    built-in generators in =src/generators.js= can be used as more complex
+    Custom generators are no different from the built-in generators.
+
+    #+begin_src js
+      import {
+        degenUppercaseString,
+      } from './custom-degens.js'
+
+      export const generateUppercaseStringRefiner = () => degenUppercaseString()
+    #+end_src
+
+    The built-in generators in =src/generators.js= can be used as more complex
     examples for building your own generators.
 
 *** command line
@@ -356,12 +387,13 @@ yarn flow-degen degen-config.json
 
 *** consuming generated deserializers
 
-The output files you indicate will always export a function as the =default=
-export. The function takes the form of =(mixed) => T | Error=.
+The output files you indicate will export refiner functions defined in the
+=exports= config for the generator. The refiner functions take the form of
+=(mixed) => T | Error=.
 
 #+begin_src javascript
 import fs from 'fs'
-import fooDeserializer from './foo.deserializer.js'
+import { fooDeserializer } from './foo.deserializer.js'
 
 const unvalidatedFoo = JSON.parse(fs.readFileSync('foo.json', 'utf8'))
 const fooOrError = fooDeserializer(unvalidatedFoo)
