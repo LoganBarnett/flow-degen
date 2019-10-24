@@ -78,7 +78,7 @@ const code = codeGen(
   },
   [
     [
-      path.resolve(__dirname, 'custom-import-output.js'), [
+      path.resolve(__dirname, 'custom-gen-with-import-output.js'), [
         [ 'refine', generator() ],
       ],
     ],

@@ -27,7 +27,7 @@ const runTest = (testFile: string): Promise<void> => {
 // Add new test files to this list
 const tests = [
   'base-path.js',
-  'custom-import.js',
+  'custom-gen-with-import.js',
   'exhaustive-union.js',
   'flow-strict.js',
   'imports.js',
