@@ -153,28 +153,6 @@ export const degenField = <CustomType: string, CustomImport: string>(
   ]]
 }
 
-
-export const degenOptionalField = <CustomType: string, CustomImport: string>(
-  fieldName: string,
-  deserializer: DeserializerGenerator<CustomType, CustomImport>,
-): FieldDeserializer<CustomType, CustomImport> => {
-  const [deserializerFn, deps] = deserializer
-  return [fieldName, [() => {
-    // the `else {` is terminated in deObject during the join.
-    return `const ${fieldName} = (
-      deField('${fieldName}',
-        (${deserializerFn()}),
-        json.${fieldName})
-    )
-if(${fieldName} instanceof Error) {
-  const error: Error = ${fieldName}
-  return new Error('Could not deserialize field "${fieldName}": ' + error.message)
-} else {`
-  },
-    mergeDeps(deps, { types: [], imports: ['deField'], hoists: [] }),
-  ]]
-}
-
 export const degenList = <CustomType: string, CustomImport: string>(
   element: DeserializerGenerator<CustomType, CustomImport>,
 ): DeserializerGenerator<CustomType, CustomImport> => {
