@@ -11,24 +11,24 @@ import {
 import { runFlow } from './utils.js'
 import { codeGen } from '../src/base-gen.js'
 
-export type Obj = {
+export type MixedObj = {
   required: string,
   optional?: number,
 }
 
-const objType = { name: 'Obj', typeParams: [] }
-const objGenerator = () => degenObject(objType, [
+const mixedObjType = { name: 'MixedObj', typeParams: [] }
+const mixedObjGenerator = () => degenObject(mixedObjType, [
   degenField('required', degenString()),
 ], [
   degenField('optional', degenNumber()),
 ])
 
-const code = codeGen(
+const codeWithRequired = codeGen(
   __dirname,
   true,
   '',
   {
-    'Obj': __filename,
+    'MixedObj': __filename,
   },
   {
     deField: '../src/deserializer.js',
@@ -38,13 +38,56 @@ const code = codeGen(
   [
     [
       path.resolve(__dirname, 'object-optional-fields-output.js'), [
-        [ 'objRefiner', objGenerator() ],
+        [ 'mixedObjRefiner', mixedObjGenerator() ],
       ],
     ],
   ],
 )[0][1]
 
-runFlow(code).then((errorText) => {
+runFlow(codeWithRequired).then((errorText) => {
+  assert.ok(
+    errorText.match(/No errors!/),
+    'Expected no errors in flow check but got errors:' + errorText,
+  )
+}).catch((e: mixed) => {
+  console.error('Error running test:', e)
+  process.exit(1)
+})
+
+export type OptionalObj = {
+  optional?: number,
+  optionalAlso?: string,
+}
+
+const optionalObjType = { name: 'OptionalObj', typeParams: [] }
+const optionalObjGenerator = () => degenObject(optionalObjType, [
+], [
+  degenField('optional', degenNumber()),
+  degenField('optionalALso', degenString()),
+])
+
+const codeSansRequired = codeGen(
+  __dirname,
+  true,
+  '',
+  {
+    'OptionalObj': __filename,
+  },
+  {
+    deField: '../src/deserializer.js',
+    deNumber: '../src/deserializer.js',
+    deString: '../src/deserializer.js',
+  },
+  [
+    [
+      path.resolve(__dirname, 'object-optional-fields-output.js'), [
+        [ 'optionalObjRefiner', optionalObjGenerator() ],
+      ],
+    ],
+  ],
+)[0][1]
+
+runFlow(codeSansRequired).then((errorText) => {
   assert.ok(
     errorText.match(/No errors!/),
     'Expected no errors in flow check but got errors:' + errorText,

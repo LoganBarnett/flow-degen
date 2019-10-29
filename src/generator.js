@@ -2,12 +2,14 @@
 import {
   append,
   concat,
+  length,
   map,
   merge,
   pipe,
   prop,
   reduce,
   tail,
+  times,
 } from 'ramda'
 
 import { stringify } from './deserializer.js'
@@ -113,9 +115,8 @@ if(${name} instanceof Error) {
 } else {
 `
     }).join('\n')}
-      const result: ${typeName} = {
-        ${requiredFieldNames.join(',\n')}
-      }
+      const result = {}
+        ${requiredFieldNames.map(f => `result.${f} = ${f}`).join('\n')}
       ${optionalFields.map(([name, refiner]) => {
         return `\
 if(json.hasOwnProperty('${name}')) {
@@ -128,8 +129,7 @@ if(json.hasOwnProperty('${name}')) {
 }`
       }).join('\n')}
       return result
-    ${tail(requiredFieldRefiners.map(() => '}')).join('')}
-    }
+    ${times(() => '}', length(requiredFieldRefiners)).join('')}
   }
 }
 `

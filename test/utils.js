@@ -15,7 +15,7 @@ export const runFlow = (code: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     const process = exec(`yarn flow check-contents`, {}, (error, stdout, sterr) => {
       if(error) {
-        // console.error('Error running "yarn flow check-contents":', error, stdout.toString())
+        console.error('Error running "yarn flow check-contents":', error, stdout.toString())
       } else {
         // console.log('is this the entire output?', stdout.toString())
       }

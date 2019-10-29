@@ -12,15 +12,22 @@ import {
 
 const runTest = (testFile: string): Promise<void> => {
   return new Promise((resolve, reject) => {
-    const process = exec(`yarn babel-node test/${testFile}`, {}, (error, stdout, stderr) => {
-      console.log(`Running test ${testFile}`)
-      if (error) {
-        console.error('Error running test', testFile, stderr.toString())
-        reject(new Error('test exit code: ' + String(error.code)))
-      } else {
-        resolve()
-      }
-    })
+    const process = exec(
+      `yarn babel-node test/${testFile}`,
+      {},
+      (error, stdout, stderr) => {
+        if (error) {
+          console.error(
+            'Error running test',
+            testFile,
+            stdout.toString(),
+            stderr.toString(),
+          )
+          reject(new Error('test exit code: ' + String(error.code)))
+        } else {
+          resolve()
+        }
+      })
   })
 }
 
@@ -32,6 +39,7 @@ const tests = [
   'flow-strict.js',
   'imports.js',
   'maybe.js',
+  'object-optional-fields.js',
   'preamble.js',
 ]
 
@@ -50,7 +58,10 @@ const testPromises = pipe(
 Promise.all(testPromises(selectedTests)).then(() => {
   console.log('All tests passed!')
   process.exit(0)
-}).catch(() => {
-  console.error('There were failing tests! Check the console output for details.')
+}).catch((error: mixed) => {
+  console.error(
+    'There were failing tests! Check the console output for details.',
+    error,
+  )
   process.exit(1)
 })
