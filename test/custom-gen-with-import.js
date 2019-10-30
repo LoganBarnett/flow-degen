@@ -62,11 +62,12 @@ const fooType = { name: 'Foo', typeParams: [] }
 
 const generator = () => customDegen(
   fooType,
-  degenObject(fooType, [degenField('bar', degenString())]),
+  degenObject(fooType, [degenField('bar', degenString())], []),
 )
 
 const code = codeGen(
   __dirname,
+  true,
   '',
   {
     'Foo': __filename,
