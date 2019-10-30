@@ -23,6 +23,7 @@
        code when running. This can be helpful when running tests and you want
        the generated output to display and a syntax error causes =prettier= to
        fail. This way you can still limp by and see the generated code.
+    3. =typeHeader= is now exported. Documentation to follow soon!
 *** Fixes
     1. Reduce the amount of type inferencing =flow-degen= relies upon. Consumers
        can easily run into a "recursion limit exceeded" issue with Flow. To work
