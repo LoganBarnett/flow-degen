@@ -1,6 +1,7 @@
 #! /usr/bin/env node
 // @flow strict
 
+import { typeof fileGen as FileGen } from './src/base-gen.js'
 const fs = require('fs')
 const path = require('path')
 // All of the files used here are transpiled, but this helps with consuming
@@ -20,10 +21,7 @@ require('@babel/register')(babelConfig)
 
 const R = require('ramda')
 
-// We can't really type check against these results. If we export fileGen as
-// part of the library's proper interface, we should be able to achieve type
-// safety again.
-const fileGen = require('./dist/base-gen.js').fileGen
+const fileGen: FileGen<string, string> = require('./dist/base-gen.js').fileGen
 const configDeserializer = require('./dist/config.deserializer.js').deConfig
 
 const configPath = process.argv[2]
@@ -63,6 +61,9 @@ else {
 
     fileGen(
       configFile.baseDir,
+      // TODO: Let's bundle this up into the config file and reduce the args
+      // here.
+      true,
       configFile.generatedPreamble,
       configFile.typeLocations,
       R.merge(
