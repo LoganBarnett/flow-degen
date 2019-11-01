@@ -174,8 +174,8 @@ yarn add -E -D flow-degen
      #+begin_src js
        import { degenObject, degenField, degenMaybe, degenString } from 'flow-degen'
 
-       const fooType = { name: 'Foo', typeParams: [] }
-       const stringType = { name: 'string', typeParams: [] }
+       const fooType = { name: 'Foo' }
+       const stringType = { name: 'string' }
        export const fooGenerator = () => degenObject(fooType, [
          degenField('bar', degenMaybe(stringType, degenString())),
        ])
@@ -221,7 +221,7 @@ yarn add -E -D flow-degen
          love?: number,
        }
 
-       const catType = { name: 'Cat', typeParams: [] }
+       const catType = { name: 'Cat' }
        const catGenerator = () => degenObject(catType, [
          degenField('demands', degenNumber()),
        ], [
@@ -304,7 +304,7 @@ yarn add -E -D flow-degen
      #+begin_src js
        import { degenObject, degenField, degenString } from 'flow-degen'
 
-       const fooType = { name: 'Foo', typeParams: [] }
+       const fooType = { name: 'Foo' }
        export const fooGenerator = () => degenObject(fooType, [
          degenField('first', degenString()),
          degenField('last', degenString()),
@@ -321,8 +321,8 @@ yarn add -E -D flow-degen
        } from 'flow-degen'
 
        // This is the same fooType in foo-generator.js, and could be imported.
-       const fooType = { name: 'Foo', typeParams: [] }
-       const barType = { name: 'Bar', typeParams: [] }
+       const fooType = { name: 'Foo' }
+       const barType = { name: 'Bar' }
        export const fooGenerator = () => degenObject(barType, [
          degenField('foo', degenRefiner(fooType, 'deFoo')),
        ])
@@ -408,7 +408,7 @@ yarn add -E -D flow-degen
             {
               hoists: [],
               imports: [ 'uppercase' ],
-              types: [ { name: 'UppercaseString', typeParams: [] } ],
+              types: [ { name: 'UppercaseString' } ],
             },
           ),
         ]
