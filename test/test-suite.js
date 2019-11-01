@@ -12,6 +12,7 @@ import {
 
 const runTest = (testFile: string): Promise<void> => {
   return new Promise((resolve, reject) => {
+    console.log(`Running test ${testFile}`)
     const process = exec(
       `yarn babel-node test/${testFile}`,
       {},
@@ -43,6 +44,7 @@ const tests = [
   'custom-gen-with-import.js',
   'exhaustive-union.js',
   'flow-strict.js',
+  'flow-utility-types.js',
   'imports.js',
   'mapping.js',
   'maybe.js',

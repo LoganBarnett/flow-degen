@@ -14,14 +14,24 @@ import {
 
 import { stringify } from './deserializer.js'
 
-export type DeType =
+export type NativeType =
   | 'Object'
   | 'bool'
   | 'boolean'
   | 'function'
+  | 'literal'
   | 'number'
   | 'object'
   | 'string'
+
+export type FlowUtilityType =
+  | '$ElementType'
+  | '$NonMaybeType'
+  | '$PropertyType'
+
+export type DeType =
+  | NativeType
+  | FlowUtilityType
 
 export type DeImport =
   | 'stringify'
@@ -34,7 +44,8 @@ export type DeImport =
 
 export type MetaType<CustomType: string, CustomImport: string> = {
   name: CustomType | DeType,
-  typeParams: Array<MetaType<CustomType, CustomImport>>,
+  typeParams?: Array<MetaType<CustomType, CustomImport>>,
+  value?: mixed,
 }
 
 export type CodeGenDep<CustomType: string, CustomImport: string> = {
@@ -343,7 +354,9 @@ const ${fnName} = (x: mixed): ${typeHeader} | Error => {
 export const typeHeader = <CustomType: string, CustomImport: string>(
   type: MetaType<CustomType, CustomImport>,
 ): string => {
-  if(type.typeParams.length > 0) {
+  if (type.name == 'literal') {
+    return stringify(type.value)
+  } else if (type.typeParams && type.typeParams.length > 0) {
     const params = type.typeParams.map(typeHeader)
     return `${type.name}<${params.join(', ')}>`
   }
@@ -356,7 +369,9 @@ export const typeHeader = <CustomType: string, CustomImport: string>(
 export const flattenTypes = <CustomType: string, CustomImport: string>(
   type: MetaType<CustomType, CustomImport>,
 ): Array<MetaType<CustomType, CustomImport>> => {
-  const nestedTypes = type.typeParams.map(flattenTypes)
+  const nestedTypes = type.typeParams
+    ? type.typeParams.map(flattenTypes)
+    : ([]: Array<Array<MetaType<CustomType, CustomImport>>>)
   return reduce<
     Array<MetaType<CustomType, CustomImport>>,
     Array<MetaType<CustomType, CustomImport>>,
