@@ -38,6 +38,7 @@ const tests = [
   'exhaustive-union.js',
   'flow-strict.js',
   'imports.js',
+  'mapping.js',
   'maybe.js',
   'object-optional-fields.js',
   'preamble.js',

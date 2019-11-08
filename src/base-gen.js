@@ -33,6 +33,7 @@ const baseImportLocations: {[import: DeImport]: string} = {
   deBool: 'flow-degen',
   deField: 'flow-degen',
   deList: 'flow-degen',
+  deMapping: 'flow-degen',
   deNumber: 'flow-degen',
   deString: 'flow-degen',
   stringify: 'flow-degen',
