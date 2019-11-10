@@ -9,8 +9,19 @@
 * changelog
 ** Upcoming
 *** Breaking
+    1. =degenList=, =degenMapping=, and =degenRefiner= all now require
+       =MetaType= information in the leading parameters. In the case of
+       =degenMapping= there are two (key and value). The "Fixes" section
+       outlines the motivations.
 *** Additions
 *** Fixes
+    1. We are now explicitly using types at the call sites for =degenList=,
+       =degenMapping=, and =degenRefiner=. This should reduce the level of type
+       inferencing the generated refiners place upon Flow, and in many cases
+       will reduce errors outright because Flow just didn't have enough to go
+       off of. See the "Breaking" section for details as to how this breaks the
+       interfaces for these functions, and how you can address it.
+
 ** 0.16.0
 *** Breaking
     1. =degenObject= now takes a list of optional fields as a new argument at

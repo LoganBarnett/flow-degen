@@ -128,7 +128,8 @@ yarn add -E -D flow-degen
      #+begin_src js
        import { degenList, degenNumber} from 'flow-degen'
 
-       export const foosGenerator = () => degenList(degenNumber())
+       const numberType = { name: 'number', typeParams: [] }
+       export const foosGenerator = () => degenList(numberType, degenNumber())
      #+end_src
 
      Upon importing the emitted file, you can now refine into an =Array= of
@@ -156,8 +157,8 @@ yarn add -E -D flow-degen
 
 **** degenMapping
      A "mapping" is of the type ={[A]: B}= although usually it will be
-     ={[string]: mixed}=. It takes a key deserializer and a value deserializer
-     for =A= and =B= respectively.
+     ={[string]: mixed}=. It takes the key meta type, the value meta type, a key
+     deserializer, and a value deserializer for =A= and =B= respectively.
 **** degenMaybe
      The =degenMaybe= generator is for creating refiners for maybe types (e.g.
      type Foo = ?string). The maybe type will still require additional
@@ -319,9 +320,11 @@ yarn add -E -D flow-degen
          degenRefiner,
        } from 'flow-degen'
 
+       // This is the same fooType in foo-generator.js, and could be imported.
+       const fooType = { name: 'Foo', typeParams: [] }
        const barType = { name: 'Bar', typeParams: [] }
        export const fooGenerator = () => degenObject(barType, [
-         degenField('foo', degenRefiner('deFoo')),
+         degenField('foo', degenRefiner(fooType, 'deFoo')),
        ])
      #+end_src
 
@@ -367,6 +370,10 @@ yarn add -E -D flow-degen
       =./src/generator.js= does this for you. It is found by =flow-degen=
       consumers as a top-level export (=import { mergeDeps } from
       'flow-degen'=).
+    + Try testing your refiner with an opaque type. This seems to be a good way
+      to ensure Flow cannot run into issues with type inferencing. We suspect
+      this is a good test because opaque types can never be inferred, and
+      therefore will always need explicit types at the call site of a refiner.
 
     Let's create an custom generator example where we have an uppercase string.
 

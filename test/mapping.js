@@ -16,10 +16,16 @@ export type Container = {
 }
 
 const containerMetaType = { name: 'Container', typeParams: [] }
+const stringMetaType = { name: 'string', typeParams: [] }
 
 const mappingContainerGenerator = () => degenObject(
   containerMetaType,
-  [degenField('mapping', degenMapping(degenString(), degenString()))],
+  [degenField('mapping', degenMapping(
+    stringMetaType,
+    stringMetaType,
+    degenString(),
+    degenString(),
+  ))],
   [],
 )
 

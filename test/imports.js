@@ -32,8 +32,8 @@ const fooGenerator = () => degenObject(fooType, [
 ], [])
 
 const barGenerator = () => degenObject(barType, [
-  degenField('b', degenRefiner('deFoo')),
-  degenField('bb', degenRefiner('deBaz'))
+  degenField('b', degenRefiner(fooType, 'deFoo')),
+  degenField('bb', degenRefiner(bazType, 'deBaz'))
 ], [])
 
 const bazGenerator = () => degenObject(bazType, [

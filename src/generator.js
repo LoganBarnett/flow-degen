@@ -154,27 +154,40 @@ export const degenField = <CustomType: string, CustomImport: string>(
 }
 
 export const degenList = <CustomType: string, CustomImport: string>(
+  metaType: MetaType<CustomType, CustomImport>,
   element: DeserializerGenerator<CustomType, CustomImport>,
 ): DeserializerGenerator<CustomType, CustomImport> => {
   const [elementDeserializer, deps] = element
   return [() => {
-    return `deList.bind(null, ${elementDeserializer()})`
+    return `(
+deList.bind(null, ${elementDeserializer()}):
+(mixed) => Array<${typeHeader(metaType)}> | Error
+)`
   }, mergeDeps<CustomType, CustomImport>(
     deps,
-    { types: [], imports: ['deList'], hoists: [] },
+    { types: [metaType], imports: ['deList'], hoists: [] },
   ),
   ]
 }
 
 export const degenMapping = <CustomType: string, CustomImport: string>(
+  keyMetaType: MetaType<CustomType, CustomImport>,
+  valueMetaType: MetaType<CustomType, CustomImport>,
   keyGenerator: DeserializerGenerator<CustomType, CustomImport>,
   valueGenerator: DeserializerGenerator<CustomType, CustomImport>,
 ): DeserializerGenerator<CustomType, CustomImport> => {
   const [keyDeserializer, keyDeps] = keyGenerator
   const [valueDeserializer, valueDeps] = valueGenerator
-  const deps = { types: [], imports: ['deMapping'], hoists: []}
+  const deps = {
+    types: [keyMetaType, valueMetaType],
+    imports: ['deMapping'],
+    hoists: [],
+  }
   return [
-    () => `deMapping.bind(null, ${keyDeserializer()}, ${valueDeserializer()})`,
+    () => `(
+deMapping.bind(null, ${keyDeserializer()}, ${valueDeserializer()}):
+(mixed) => { [${typeHeader(keyMetaType)}]: ${typeHeader(valueMetaType)} } | Error
+)`,
     mergeDeps<CustomType, CustomImport>(mergeDeps(keyDeps, valueDeps), deps),
   ]
 }
@@ -390,11 +403,12 @@ export const de = <CustomType: string, CustomImport: string>(
 }
 
 export const degenRefiner = <CustomType: string, CustomImport: string>(
+  refinerType: MetaType<CustomType, CustomImport>,
   refinerSymbol: CustomImport,
 ): DeserializerGenerator<CustomType, CustomImport> => {
   return [
     () => refinerSymbol,
-    { types: [], imports: [refinerSymbol], hoists: [] },
+    { types: [refinerType], imports: [refinerSymbol], hoists: [] },
   ]
 }
 
