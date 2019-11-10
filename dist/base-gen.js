@@ -36,6 +36,7 @@ var baseImportLocations = {
   deBool: 'flow-degen',
   deField: 'flow-degen',
   deList: 'flow-degen',
+  deMapping: 'flow-degen',
   deNumber: 'flow-degen',
   deString: 'flow-degen',
   stringify: 'flow-degen'
@@ -108,7 +109,7 @@ var hoist = function hoist(hoists) {
   return hoists.join('\n\n') + '\n\n';
 };
 
-var codeGen = function codeGen(baseDir, preamble, typeLocations, customImportLocations, generators) {
+var codeGen = function codeGen(baseDir, prettify, preamble, typeLocations, customImportLocations, generators) {
   var importLocations = (0, _ramda.merge)(baseImportLocations, customImportLocations);
   return generators.map(function (_ref3) {
     var _ref4 = _slicedToArray(_ref3, 2),
@@ -146,14 +147,14 @@ var codeGen = function codeGen(baseDir, preamble, typeLocations, customImportLoc
     var hoistedCode = hoist(deps.hoists);
     var finalCode = "".concat(headerCode, "\n").concat(hoistedCode, "\n").concat(code); // console.error(finalCode)
 
-    return [_path["default"].join(baseDir, file), _prettier["default"].format(finalCode, prettierArgs), deps];
+    return [_path["default"].join(baseDir, file), prettify ? _prettier["default"].format(finalCode, prettierArgs) : finalCode, deps];
   });
 };
 
 exports.codeGen = codeGen;
 
-var fileGen = function fileGen(baseDir, preamble, typeLocations, customImportLocations, generators) {
-  return Promise.all(codeGen(baseDir, preamble, typeLocations, customImportLocations, generators).map(function (_ref11) {
+var fileGen = function fileGen(baseDir, prettify, preamble, typeLocations, customImportLocations, generators) {
+  return Promise.all(codeGen(baseDir, prettify, preamble, typeLocations, customImportLocations, generators).map(function (_ref11) {
     var _ref12 = _slicedToArray(_ref11, 2),
         file = _ref12[0],
         code = _ref12[1];

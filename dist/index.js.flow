@@ -18,6 +18,7 @@ export {
   degenField,
   degenFilePath,
   degenList,
+  degenMapping,
   degenMaybe,
   degenNumber,
   degenObject,
@@ -28,6 +29,7 @@ export {
   degenType,
   degenValue,
   mergeDeps,
+  typeHeader,
 } from '../src/generator.js'
 export type {
   CodeGenDep,

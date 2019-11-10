@@ -18,6 +18,7 @@ export {
   degenField,
   degenFilePath,
   degenList,
+  degenMapping,
   degenMaybe,
   degenNumber,
   degenObject,

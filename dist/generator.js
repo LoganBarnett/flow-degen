@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.mergeDeps = mergeDeps;
-exports.degenMaybe = exports.degenRefiner = exports.de = exports.degenValue = exports.degenType = exports.flattenTypes = exports.degenSum = exports.degenSentinelValue = exports.degenNumber = exports.degenBool = exports.degenEnum = exports.degenFilePath = exports.degenString = exports.degenMapping = exports.degenList = exports.degenField = exports.degenObject = exports.maybeMap = void 0;
+exports.degenMaybe = exports.degenRefiner = exports.de = exports.degenValue = exports.degenType = exports.flattenTypes = exports.typeHeader = exports.degenSum = exports.degenSentinelValue = exports.degenNumber = exports.degenBool = exports.degenEnum = exports.degenFilePath = exports.degenString = exports.degenMapping = exports.degenList = exports.degenField = exports.degenObject = exports.maybeMap = void 0;
 
 var _ramda = require("ramda");
 
@@ -36,7 +36,7 @@ function mergeDeps(a, b) {
   };
 }
 
-var degenObject = function degenObject(deType, fields) {
+var degenObject = function degenObject(deType, requiredFields, optionalFields) {
   var fieldDeps = (0, _ramda.reduce)(mergeDeps, {
     imports: [],
     types: [],
@@ -47,27 +47,54 @@ var degenObject = function degenObject(deType, fields) {
         deps = _ref2$[1];
 
     return deps;
-  }, fields));
+  }, requiredFields).concat((0, _ramda.map)(function (_ref3) {
+    var _ref4 = _slicedToArray(_ref3, 2),
+        _ref4$ = _slicedToArray(_ref4[1], 2),
+        deps = _ref4$[1];
+
+    return deps;
+  }, optionalFields)));
   return [function () {
     // Is there an R.unzip?
     // No.
-    var names = (0, _ramda.map)(function (_ref3) {
-      var _ref4 = _slicedToArray(_ref3, 1),
-          n = _ref4[0];
+    var requiredFieldNames = (0, _ramda.map)(function (_ref5) {
+      var _ref6 = _slicedToArray(_ref5, 1),
+          n = _ref6[0];
 
       return n;
-    }, fields);
-    var fieldDeserializers = (0, _ramda.map)(function (_ref5) {
-      var _ref6 = _slicedToArray(_ref5, 2),
-          f = _ref6[1];
+    }, requiredFields);
+    var requiredFieldRefiners = (0, _ramda.map)(function (_ref7) {
+      var _ref8 = _slicedToArray(_ref7, 2),
+          f = _ref8[1];
 
       return f[0]();
-    }, fields);
-    var typeDeserializer = degenType(deType);
-    var typeName = typeDeserializer[0]();
-    return "(json: mixed): ".concat(typeName, " | Error => {\n  if(json === null) {\n    return new Error('Could not deserialize json because the value is null.')\n  }\n  else if(typeof json == 'undefined') {\n    return new Error('Could not deserialize json because the value is undefined.')\n  }\n  else if(json instanceof Error || typeof json != 'object') {\n    return new Error('Could not deserialize object \"' + String(json) + '\"')\n  }\n  else {\n    ").concat(fieldDeserializers.join('\n'), "\n      const result: ").concat(typeName, " = {\n        ").concat(names.join(',\n'), "\n      }\n      return result\n    ").concat((0, _ramda.tail)(fieldDeserializers.map(function () {
+    }, requiredFields);
+    var optionalFieldRefiners = (0, _ramda.map)(function (_ref9) {
+      var _ref10 = _slicedToArray(_ref9, 2),
+          f = _ref10[1];
+
+      return f[0]();
+    }, optionalFields);
+    var typeRefiner = degenType(deType);
+    var typeName = typeRefiner[0]();
+    return "(json: mixed): ".concat(typeName, " | Error => {\n  if(json === null) {\n    return new Error('Could not deserialize json because the value is null.')\n  }\n  else if(typeof json == 'undefined') {\n    return new Error('Could not deserialize json because the value is undefined.')\n  }\n  else if(json instanceof Error || typeof json != 'object') {\n    return new Error('Could not deserialize object \"' + String(json) + '\"')\n  }\n  else {\n    ").concat(requiredFields.map(function (_ref11) {
+      var _ref12 = _slicedToArray(_ref11, 2),
+          name = _ref12[0],
+          refiner = _ref12[1];
+
+      // The { is matched towards the end of the generator.
+      return "const ".concat(name, " = ").concat(refiner[0](), "\nif(").concat(name, " instanceof Error) {\n  return ").concat(name, "\n} else {\n");
+    }).join('\n'), "\n      const result = {}\n        ").concat(requiredFieldNames.map(function (f) {
+      return "result.".concat(f, " = ").concat(f);
+    }).join('\n'), "\n      ").concat(optionalFields.map(function (_ref13) {
+      var _ref14 = _slicedToArray(_ref13, 2),
+          name = _ref14[0],
+          refiner = _ref14[1];
+
+      return "if(json.hasOwnProperty('".concat(name, "')) {\n  const ").concat(name, " = ").concat(refiner[0](), "\n  if(").concat(name, " instanceof Error) {\n    return ").concat(name, "\n  } else {\n    result.").concat(name, " = ").concat(name, "\n  }\n}");
+    }).join('\n'), "\n      return result\n    ").concat((0, _ramda.times)(function () {
       return '}';
-    })).join(''), "\n    }\n  }\n}\n");
+    }, (0, _ramda.length)(requiredFieldRefiners)).join(''), "\n  }\n}\n");
   }, mergeDeps(fieldDeps, {
     types: [deType],
     imports: [],
@@ -84,7 +111,7 @@ var degenField = function degenField(fieldName, deserializer) {
 
   return [fieldName, [function () {
     // the `else {` is terminated in deObject during the join.
-    return "const ".concat(fieldName, " = (\n      deField('").concat(fieldName, "',\n        (").concat(deserializerFn(), "),\n        json.").concat(fieldName, ")\n    )\nif(").concat(fieldName, " instanceof Error) {\n  const error: Error = ").concat(fieldName, "\n  return new Error('Could not deserialize field \"").concat(fieldName, "\": ' + error.message)\n} else {");
+    return "deField('".concat(fieldName, "',\n        (").concat(deserializerFn(), "),\n        json.").concat(fieldName, ")");
   }, mergeDeps(deps, {
     types: [],
     imports: ['deField'],
@@ -246,6 +273,8 @@ var typeHeader = function typeHeader(type) {
     return type.name;
   }
 };
+
+exports.typeHeader = typeHeader;
 
 var flattenTypes = function flattenTypes(type) {
   var nestedTypes = type.typeParams.map(flattenTypes);

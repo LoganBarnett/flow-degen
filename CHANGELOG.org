@@ -9,6 +9,10 @@
 * changelog
 ** Upcoming
 *** Breaking
+*** Additions
+*** Fixes
+** 0.16.0
+*** Breaking
     1. =degenObject= now takes a list of optional fields as a new argument at
        the end of the argument list. The simplest thing to do is add =[]= as the
        last parameter to your calls, and you will have the same behavior as
@@ -24,12 +28,19 @@
        the generated output to display and a syntax error causes =prettier= to
        fail. This way you can still limp by and see the generated code.
     3. =typeHeader= is now exported. Documentation to follow soon!
+    4. =degenMapping= is properly exported.
 *** Fixes
     1. Reduce the amount of type inferencing =flow-degen= relies upon. Consumers
        can easily run into a "recursion limit exceeded" issue with Flow. To work
        around this, some functions have been made to specifically indicate their
        type parameters at the call sites. This has been shown to fix the
        problem, but it is difficult to build tests towards.
+** 0.15.0
+   Nothing here - Logan messed up the publish and hadn't staged any changes.
+   Derp.
+*** Breaking
+*** Additions
+*** Fixes
 ** 0.14.0
 *** Breaking
 *** Additions

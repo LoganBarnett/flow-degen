@@ -75,6 +75,12 @@ Object.defineProperty(exports, "degenList", {
     return _generator.degenList;
   }
 });
+Object.defineProperty(exports, "degenMapping", {
+  enumerable: true,
+  get: function get() {
+    return _generator.degenMapping;
+  }
+});
 Object.defineProperty(exports, "degenMaybe", {
   enumerable: true,
   get: function get() {
@@ -133,6 +139,12 @@ Object.defineProperty(exports, "mergeDeps", {
   enumerable: true,
   get: function get() {
     return _generator.mergeDeps;
+  }
+});
+Object.defineProperty(exports, "typeHeader", {
+  enumerable: true,
+  get: function get() {
+    return _generator.typeHeader;
   }
 });
 
