@@ -25,6 +25,9 @@ const runTest = (testFile: string): Promise<void> => {
           )
           reject(new Error('test exit code: ' + String(error.code)))
         } else {
+          // Ideally we aren't depending on log output, but sometimes it's
+          // useful to debug even passing tests.
+          console.log(stdout.toString())
           resolve()
         }
       })
@@ -34,6 +37,9 @@ const runTest = (testFile: string): Promise<void> => {
 // Add new test files to this list
 const tests = [
   'base-path.js',
+  'call-site-type-delist.js',
+  'call-site-type-demapping.js',
+  'call-site-type-opaque.js',
   'custom-gen-with-import.js',
   'exhaustive-union.js',
   'flow-strict.js',
@@ -56,8 +62,10 @@ const testPromises = pipe(
   map(runTest),
 )
 
-Promise.all(testPromises(selectedTests)).then(() => {
-  console.log('All tests passed!')
+const testRuns = testPromises(selectedTests)
+Promise.all(testRuns).then(() => {
+  const size = testRuns.length
+  console.log(`All tests passed! ${size}/${size}`)
   process.exit(0)
 }).catch((error: mixed) => {
   console.error(

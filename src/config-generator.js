@@ -32,11 +32,30 @@ const configGeneratorType = { name: 'ConfigGenerator', typeParams: []}
 export const degenConfig = () => degenObject<string, string>(configType, [
   degenField('baseDir', degenFilePath()),
   degenField('generatedPreamble', degenString()),
-  degenField('typeLocations', degenMapping(degenString(), degenFilePath())),
-  degenField('importLocations', degenMapping(degenString(), degenFilePath())),
-  degenField('generators', degenList(degenObject(configGeneratorType, [
-    degenField('exports', degenMapping(degenString(), degenString())),
-    degenField('inputFile', degenFilePath()),
-    degenField('outputFile', degenFilePath()),
-  ], []))),
+  degenField('typeLocations', degenMapping(
+    stringType,
+    stringType,
+    degenString(),
+    degenFilePath(),
+  )),
+  degenField('importLocations', degenMapping(
+    stringType,
+    stringType,
+    degenString(),
+    degenFilePath(),
+  )),
+  degenField('generators', degenList(
+    configGeneratorType,
+    degenObject(configGeneratorType, [
+      degenField('exports', degenMapping(
+        stringType,
+        stringType,
+        degenString(),
+        degenString(),
+      )),
+      degenField('inputFile', degenFilePath()),
+      degenField('outputFile', degenFilePath()),
+    ],
+    [],
+  ))),
 ], [])
