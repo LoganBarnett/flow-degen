@@ -1,7 +1,9 @@
 #! /usr/bin/env node
 // @flow strict
 
+/*::
 import { typeof fileGen as FileGen } from './src/base-gen.js'
+*/
 const fs = require('fs')
 const path = require('path')
 // All of the files used here are transpiled, but this helps with consuming
@@ -21,7 +23,7 @@ require('@babel/register')(babelConfig)
 
 const R = require('ramda')
 
-const fileGen: FileGen<string, string> = require('./dist/base-gen.js').fileGen
+const fileGen /*: FileGen<string, string> */ = require('./dist/base-gen.js').fileGen
 const configDeserializer = require('./dist/config.deserializer.js').deConfig
 
 const configPath = process.argv[2]
