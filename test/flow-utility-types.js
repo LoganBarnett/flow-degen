@@ -19,7 +19,7 @@ export type ElementTypeTestContainer = {
   bar: ElementTypeTest,
 }
 
-const numberType = { name: 'number' }
+const numberType = { name: '1', literal: true }
 const elementTypeTestType = { name: 'ElementTypeTest' }
 const elementTypeTestContainerType = { name: 'ElementTypeTestContainer' }
 const elementTypeTestElementType = { name: '$ElementType', typeParams: [ elementTypeTestType, numberType ] }
@@ -27,7 +27,7 @@ const elementTypeTestElementType = { name: '$ElementType', typeParams: [ element
 const elementTypeTestContainerGenerator = () => degenObject(
   elementTypeTestContainerType,
   [
-    degenField('bar', degenList(
+    degenField('bar', degenList(elementTypeTestElementType,
       degenObject(elementTypeTestElementType, [
         degenField('foo', degenString()),
       ], [])
@@ -75,7 +75,7 @@ export type PropertyTypeTest = {
 }
 
 const propertyTypeTestType = { name: 'PropertyTypeTest' }
-const fooPropertyName = { name: 'literal', value: 'foo' }
+const fooPropertyName = { name: "'foo'", literal: true }
 const propertyTypeTestFooPropertyType = { name: '$PropertyType', typeParams: [ propertyTypeTestType, fooPropertyName ] }
 
 const propertyTypeTestGenerator = () => degenObject(
@@ -132,9 +132,10 @@ const nonMaybeTypeTestElementType = { name: '$ElementType', typeParams: [nonMayb
 const nonMaybeTypeTestGenerator = () => degenObject(
   nonMaybeTypeTestType,
   [], [
-    degenField('foo', degenList(degenObject(nonMaybeTypeTestElementType, [
-      degenField('bar', degenString())
-    ], [])))
+    degenField('foo', degenList(nonMaybeTypeTestElementType,
+      degenObject(nonMaybeTypeTestElementType, [
+        degenField('bar', degenString())
+      ], [])))
   ],
 )
 

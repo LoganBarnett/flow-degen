@@ -12,7 +12,6 @@ import {
 
 const runTest = (testFile: string): Promise<void> => {
   return new Promise((resolve, reject) => {
-    console.log(`Running test ${testFile}`)
     const process = exec(
       `yarn babel-node test/${testFile}`,
       {},

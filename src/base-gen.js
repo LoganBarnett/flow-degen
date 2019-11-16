@@ -46,7 +46,6 @@ const globalTypes: $ReadOnlyArray<DeType> = [
   'bool',
   'boolean',
   'function',
-  'literal',
   'number',
   'object',
   'string',

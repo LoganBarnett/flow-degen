@@ -19,7 +19,6 @@ export type NativeType =
   | 'bool'
   | 'boolean'
   | 'function'
-  | 'literal'
   | 'number'
   | 'object'
   | 'string'
@@ -43,9 +42,9 @@ export type DeImport =
   | 'deString'
 
 export type MetaType<CustomType: string, CustomImport: string> = {
+  literal?: bool,
   name: CustomType | DeType,
   typeParams?: Array<MetaType<CustomType, CustomImport>>,
-  value?: mixed,
 }
 
 export type CodeGenDep<CustomType: string, CustomImport: string> = {
@@ -354,9 +353,7 @@ const ${fnName} = (x: mixed): ${typeHeader} | Error => {
 export const typeHeader = <CustomType: string, CustomImport: string>(
   type: MetaType<CustomType, CustomImport>,
 ): string => {
-  if (type.name == 'literal') {
-    return stringify(type.value)
-  } else if (type.typeParams && type.typeParams.length > 0) {
+  if (type.typeParams && type.typeParams.length > 0) {
     const params = type.typeParams.map(typeHeader)
     return `${type.name}<${params.join(', ')}>`
   }
@@ -369,13 +366,17 @@ export const typeHeader = <CustomType: string, CustomImport: string>(
 export const flattenTypes = <CustomType: string, CustomImport: string>(
   type: MetaType<CustomType, CustomImport>,
 ): Array<MetaType<CustomType, CustomImport>> => {
-  const nestedTypes = type.typeParams
-    ? type.typeParams.map(flattenTypes)
-    : ([]: Array<Array<MetaType<CustomType, CustomImport>>>)
-  return reduce<
-    Array<MetaType<CustomType, CustomImport>>,
-    Array<MetaType<CustomType, CustomImport>>,
-  >(concat, [ type ], nestedTypes)
+  if (type.literal) {
+    return []
+  } else {
+    const nestedTypes = type.typeParams
+      ? type.typeParams.map(flattenTypes)
+      : ([]: Array<Array<MetaType<CustomType, CustomImport>>>)
+    return reduce<
+      Array<MetaType<CustomType, CustomImport>>,
+      Array<MetaType<CustomType, CustomImport>>,
+    >(concat, [ type ], nestedTypes)
+  }
 }
 
 export const degenType = <CustomType: string, CustomImport: string>(
