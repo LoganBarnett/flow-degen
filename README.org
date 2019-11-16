@@ -336,6 +336,50 @@ yarn add -E -D flow-degen
      configuration file, or your configuration file must specify in the
      =imports= how to find this symbol.
 
+*** creating meta types
+
+    Objects of type =MetaType= are passed into many generator functions and
+    contain information =flow-degen= uses to build imports and type signatures
+    in the generated code. The =MetaType= type can be found in
+    =src/generator.js= but at a minimum contains the type name:
+
+    #+begin_src js
+    type Foo = {}
+
+    const fooType = { name: 'Foo' }
+    #+end_src
+
+    In the case of generic types, the optional =typeParams= field in =MetaType=
+    can be used to list the meta types to be specified in the type signature:
+
+    #+begin_src js
+    type Foo<K: string, V: string> = {
+      [K]: V,
+    }
+
+    const stringType = { name: 'string' }
+    const fooType = { name: 'Foo', typeParams: [stringType, stringType]}
+    #+end_src
+
+    Some types (for example, certain flow utility types) take literal strings or
+    numbers instead of a type. The =MetaType= has an optional =literal= boolean
+    to indicate these usages:
+
+    #+begin_src js
+    type Foo = {
+      bar: {
+        baz: string,
+      },
+    }
+
+    const fooType = { name: 'Foo' }
+    const bazPropertyType = { name: "'baz'", literal: true }
+    const barType = { name: '$PropertyType', typeParams: [fooType, bazPropertyType] }
+    #+end_src
+
+    Note that for string literals (and other literals with delimiters) need to
+    include the delimiters in the name ("'baz'" instead of "baz" or 'baz').
+
 *** building custom deserializer generators
     All deserializers must satisfy the following contract:
 

@@ -13,6 +13,8 @@
        =MetaType= information in the leading parameters. In the case of
        =degenMapping= there are two (key and value). The "Fixes" section
        outlines the motivations.
+    2. The =typeParams= field in =MetaType= has been made optional. This could
+       impact custom generators that use this field.
 *** Additions
 *** Fixes
     1. We are now explicitly using types at the call sites for =degenList=,
@@ -30,8 +32,6 @@
        before.
     2. =codeGen= takes a =prettify= flag as the second argument. Use =true= for
        this argument to keep your original behavior.
-    3. The =typeParams= field in =MetaType= has been made optional. This could
-       impact custom generators that use this field.
 *** Additions
     1. The =degenObject= generator now takes a list of optional fields so any
        field that is an optional type (not necessarily a maybe type) can also be
