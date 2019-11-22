@@ -15,25 +15,16 @@ export type ElementTypeTest = Array<{
   foo: string,
 }>
 
-export type ElementTypeTestContainer = {
-  bar: ElementTypeTest,
-}
-
 const numberType = { name: '1', literal: true }
 const elementTypeTestType = { name: 'ElementTypeTest' }
-const elementTypeTestContainerType = { name: 'ElementTypeTestContainer' }
 const elementTypeTestElementType = { name: '$ElementType', typeParams: [ elementTypeTestType, numberType ] }
 
-const elementTypeTestContainerGenerator = () => degenObject(
-  elementTypeTestContainerType,
-  [
-    degenField('bar', degenList(elementTypeTestElementType,
-      degenObject(elementTypeTestElementType, [
-        degenField('foo', degenString()),
-      ], [])
-    ))
-  ], []
-)
+const elementTypeTestGenerator = () =>
+  degenList(elementTypeTestElementType,
+    degenObject(elementTypeTestElementType, [
+      degenField('foo', degenString()),
+    ], []),
+  )
 
 const elementTypeTestCode = codeGen(
   __dirname,
@@ -41,7 +32,6 @@ const elementTypeTestCode = codeGen(
   '',
   {
     'ElementTypeTest': __filename,
-    'ElementTypeTestContainer': __filename,
   },
   {
     deField: '../src/deserializer.js',
@@ -51,7 +41,7 @@ const elementTypeTestCode = codeGen(
   [
     [
       path.resolve(__dirname, 'flow-utility-types-output.js'), [
-        [ 'elementTypeTestContainerRefiner', elementTypeTestContainerGenerator() ],
+        [ 'elementTypeTestRefiner', elementTypeTestGenerator() ],
       ],
     ],
   ],
