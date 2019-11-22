@@ -344,7 +344,9 @@ yarn add -E -D flow-degen
     =src/generator.js= but at a minimum contains the type name:
 
     #+begin_src js
-    type Foo = {}
+    type Foo = {
+      bar: string,
+    }
 
     const fooType = { name: 'Foo' }
     #+end_src
@@ -361,9 +363,9 @@ yarn add -E -D flow-degen
     const fooType = { name: 'Foo', typeParams: [stringType, stringType]}
     #+end_src
 
-    Some types (for example, certain flow utility types) take literal strings or
-    numbers instead of a type. The =MetaType= has an optional =literal= boolean
-    to indicate these usages:
+    Some types (for example flow utility types like =$PropertyType=) take
+    literal strings or numbers instead of a type. The =MetaType= has an optional
+    =literal= boolean to indicate these usages:
 
     #+begin_src js
     type Foo = {
@@ -377,8 +379,8 @@ yarn add -E -D flow-degen
     const barType = { name: '$PropertyType', typeParams: [fooType, bazPropertyType] }
     #+end_src
 
-    Note that for string literals (and other literals with delimiters) need to
-    include the delimiters in the name ("'baz'" instead of "baz" or 'baz').
+    Note that string literals (and other literals with delimiters) need to
+    include the delimiters in the name (e.g. "'baz'" instead of "baz" or 'baz').
 
 *** building custom deserializer generators
     All deserializers must satisfy the following contract:
