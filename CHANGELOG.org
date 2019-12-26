@@ -9,6 +9,13 @@
 * changelog
 ** Upcoming
 *** Breaking
+
+*** Additions
+
+*** Fixes
+
+** 0.17.0
+*** Breaking
     1. =degenList=, =degenMapping=, and =degenRefiner= all now require
        =MetaType= information in the leading parameters. In the case of
        =degenMapping= there are two (key and value). The "Fixes" section
