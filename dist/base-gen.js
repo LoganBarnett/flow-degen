@@ -41,7 +41,7 @@ var baseImportLocations = {
   deString: 'flow-degen',
   stringify: 'flow-degen'
 };
-var globalTypes = ['bool', 'boolean', 'function', 'number', 'object', 'string']; // Use this to convert types to a series of file paths.
+var globalTypes = ['$ElementType', '$NonMaybeType', '$PropertyType', 'bool', 'boolean', 'function', 'number', 'object', 'string']; // Use this to convert types to a series of file paths.
 // type StringMap<T: string> = {[key: T]: string}
 
 var uniqueFromLookup = function uniqueFromLookup(lookup, excludes, accumulator, x) {

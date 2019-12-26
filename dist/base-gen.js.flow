@@ -40,6 +40,9 @@ const baseImportLocations: {[import: DeImport]: string} = {
 }
 
 const globalTypes: $ReadOnlyArray<DeType> = [
+  '$ElementType',
+  '$NonMaybeType',
+  '$PropertyType',
   'bool',
   'boolean',
   'function',

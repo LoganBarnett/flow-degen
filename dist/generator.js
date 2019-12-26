@@ -121,15 +121,15 @@ var degenField = function degenField(fieldName, deserializer) {
 
 exports.degenField = degenField;
 
-var degenList = function degenList(element) {
+var degenList = function degenList(metaType, element) {
   var _element = _slicedToArray(element, 2),
       elementDeserializer = _element[0],
       deps = _element[1];
 
   return [function () {
-    return "deList.bind(null, ".concat(elementDeserializer(), ")");
+    return "(\ndeList.bind(null, ".concat(elementDeserializer(), "):\n(mixed) => Array<").concat(typeHeader(metaType), "> | Error\n)");
   }, mergeDeps(deps, {
-    types: [],
+    types: [metaType],
     imports: ['deList'],
     hoists: []
   })];
@@ -137,7 +137,7 @@ var degenList = function degenList(element) {
 
 exports.degenList = degenList;
 
-var degenMapping = function degenMapping(keyGenerator, valueGenerator) {
+var degenMapping = function degenMapping(keyMetaType, valueMetaType, keyGenerator, valueGenerator) {
   var _keyGenerator = _slicedToArray(keyGenerator, 2),
       keyDeserializer = _keyGenerator[0],
       keyDeps = _keyGenerator[1];
@@ -147,12 +147,12 @@ var degenMapping = function degenMapping(keyGenerator, valueGenerator) {
       valueDeps = _valueGenerator[1];
 
   var deps = {
-    types: [],
+    types: [keyMetaType, valueMetaType],
     imports: ['deMapping'],
     hoists: []
   };
   return [function () {
-    return "deMapping.bind(null, ".concat(keyDeserializer(), ", ").concat(valueDeserializer(), ")");
+    return "(\ndeMapping.bind(null, ".concat(keyDeserializer(), ", ").concat(valueDeserializer(), "):\n(mixed) => { [").concat(typeHeader(keyMetaType), "]: ").concat(typeHeader(valueMetaType), " } | Error\n)");
   }, mergeDeps(mergeDeps(keyDeps, valueDeps), deps)];
 };
 
@@ -265,7 +265,7 @@ var degenSum = function degenSum(deType, sentinelField, sentinelFieldType, props
 exports.degenSum = degenSum;
 
 var typeHeader = function typeHeader(type) {
-  if (type.typeParams.length > 0) {
+  if (type.typeParams && type.typeParams.length > 0) {
     var params = type.typeParams.map(typeHeader);
     return "".concat(type.name, "<").concat(params.join(', '), ">");
   } else {
@@ -277,8 +277,12 @@ var typeHeader = function typeHeader(type) {
 exports.typeHeader = typeHeader;
 
 var flattenTypes = function flattenTypes(type) {
-  var nestedTypes = type.typeParams.map(flattenTypes);
-  return (0, _ramda.reduce)(_ramda.concat, [type], nestedTypes);
+  if (type.literal) {
+    return [];
+  } else {
+    var nestedTypes = type.typeParams ? type.typeParams.map(flattenTypes) : [];
+    return (0, _ramda.reduce)(_ramda.concat, [type], nestedTypes);
+  }
 };
 
 exports.flattenTypes = flattenTypes;
@@ -313,11 +317,11 @@ var de = function de(type, deserializer) {
 
 exports.de = de;
 
-var degenRefiner = function degenRefiner(refinerSymbol) {
+var degenRefiner = function degenRefiner(refinerType, refinerSymbol) {
   return [function () {
     return refinerSymbol;
   }, {
-    types: [],
+    types: [refinerType],
     imports: [refinerSymbol],
     hoists: []
   }];
