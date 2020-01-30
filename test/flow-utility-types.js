@@ -2,11 +2,12 @@
 import assert from 'assert'
 import path from 'path'
 import {
+  degenEnum,
   degenField,
   degenList,
   degenObject,
   degenString,
-} from '../src/generator.js'
+} from '../src/index.js'
 import { runFlow } from './utils.js'
 import { codeGen } from '../src/base-gen.js'
 
@@ -151,6 +152,55 @@ const nonMaybeTypeTestCode = codeGen(
 )[0][1]
 
 runFlow(nonMaybeTypeTestCode).then((errorText) => {
+  assert.ok(
+    errorText.match(/No errors!/),
+    'Expected no errors in flow check but got errors:' + errorText,
+  )
+}).catch((e: mixed) => {
+  console.error('Error running test:', e)
+  process.exit(1)
+})
+
+// Test $PropertyType<T, k>, e.g. $PropertyType<PropertyTypeTest, 'foo'> with an enum
+export type EnumPropertyTypeTest = {
+  foo: 'bar' | 'baz'
+}
+
+const enumPropertyTypeTestType = { name: 'EnumPropertyTypeTest' }
+const enumFooPropertyName = { name: "'foo'", literal: true }
+const enumPropertyTypeTestFooPropertyType = { name: '$PropertyType', typeParams: [ enumPropertyTypeTestType, enumFooPropertyName ] }
+
+const enumPropertyTypeTestGenerator = () => degenObject(
+  enumPropertyTypeTestType,
+  [
+    degenField('foo', degenEnum(enumPropertyTypeTestFooPropertyType, [
+      'bar',
+      'baz',
+    ]))
+  ], [],
+)
+
+const enumPropertyTypeTestCode = codeGen(
+  __dirname,
+  true,
+  '',
+  {
+    'EnumPropertyTypeTest': __filename,
+  },
+  {
+    deField: '../src/deserializer.js',
+    deString: '../src/deserializer.js',
+  },
+  [
+    [
+      path.resolve(__dirname, 'flow-utility-types-output.js'), [
+        [ 'enumPropertyTypeTestRefiner', enumPropertyTypeTestGenerator() ],
+      ],
+    ],
+  ],
+)[0][1]
+
+runFlow(enumPropertyTypeTestCode).then((errorText) => {
   assert.ok(
     errorText.match(/No errors!/),
     'Expected no errors in flow check but got errors:' + errorText,

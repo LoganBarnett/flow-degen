@@ -228,10 +228,14 @@ export const degenEnum = <CustomType: string, CustomImport: string>(
     const check = values.map(x => `'${x}'`).join(' === either || ') + ' === either'
     const oneOf = values.join(', ')
     const typeName = degenType<CustomType, CustomImport>(deType)[0]()
+    // Some Flow utility types can have string literals in them (e.g. property
+    // names) so we'll insert some escape characters so that the type name will
+    // be correctly escaped when used in the error message below.
+    const safeTypeName = typeName.replace(/'/g, "\\'")
     return `(v: mixed): ${typeName} | Error => {
   const either = ${stringGen()}(v)
   if(either instanceof Error) {
-    return new Error('Could not deserialize "' + String(v) +'" into enum "${typeName}":' + either.message)
+    return new Error('Could not deserialize "' + String(v) +'" into enum "${safeTypeName}":' + either.message)
   }
   else {
     if(${check}) {
