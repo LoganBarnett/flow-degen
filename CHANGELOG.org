@@ -16,6 +16,8 @@
     1. A bug was introduced in the recent addition of Flow utility type support.
        When =degenEnum= was used with a $PropertyType a syntax error would occurr
        due to unescaped quote characters. This bug is now fixed.
+    2. Appease security gods by bumping dependency versions, even though there
+       is zero security threat here.
 
 ** 0.17.0
 *** Breaking
