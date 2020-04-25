@@ -4,7 +4,7 @@ import {
   clone,
   concat,
   map,
-  merge,
+  mergeRight,
   partial,
   prop,
   reduce,
@@ -18,6 +18,7 @@ import {
   type DeImport,
   type DeType,
   type DeserializerGenerator,
+  type MetaType,
   degenType,
   flattenTypes,
   mergeDeps,
@@ -68,7 +69,7 @@ const uniqueFromLookup = (
     const key = lookup[x]
     const xs = accumulator[key] || []
     if(!xs.includes(x)) {
-      return merge(
+      return mergeRight(
         accumulator,
         { [key]: append(x, xs) }
       )
@@ -143,17 +144,21 @@ const header = <CustomType: string, CustomImport: string>(
     + '\n// @flow strict\n'
     + addJavascriptImports(
       // Workaround for https://github.com/facebook/flow/issues/5457.
-      merge({}, typeLocations),
+      mergeRight({}, typeLocations),
       globalTypes,
       'import type',
-      reduce(
+      reduce<
+        Array<MetaType<CustomType, CustomImport>>,
+        Array<MetaType<CustomType, CustomImport>>,
+      >(
         concat,
         [],
-        deps.types.map(flattenTypes)).map(prop('name')),
+        deps.types.map(flattenTypes),
+      ).map(prop('name')),
     )
     + addJavascriptImports(
       // Workaround for https://github.com/facebook/flow/issues/5457.
-      merge({}, importLocations),
+      mergeRight({}, importLocations),
       Object.keys(importLocations).filter(i => importLocations[i] == file),
       'import',
       // Workaround for https://github.com/facebook/flow/issues/5457.
@@ -173,7 +178,7 @@ export const codeGen = <CustomType: string, CustomImport: string>(
   customImportLocations: {[type: CustomImport]: string},
   generators: Array<[string, Array<[ string, DeserializerGenerator<CustomType, CustomImport>]>]>,
 ): Array<[ string, string, CodeGenDep<CustomType, CustomImport> ]> => {
-  const importLocations = merge(baseImportLocations, customImportLocations)
+  const importLocations = mergeRight(baseImportLocations, customImportLocations)
   return generators
     .map(([ file, degens ]) => {
       const codeAndDeps

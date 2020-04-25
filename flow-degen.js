@@ -8,11 +8,8 @@ const fs = require('fs')
 const path = require('path')
 // All of the files used here are transpiled, but this helps with consuming
 // files provided by the library consumer.
-const babelConfig = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, './.babelrc'), 'utf8')
-)
+const babelConfig = require('./babel.config.js')
 
-babelConfig.babelrcRoots = __dirname
 babelConfig.ignore = [
   path.resolve(__dirname, '.git'),
   path.resolve(__dirname, 'flow-typed'),
@@ -68,10 +65,10 @@ else {
       true,
       configFile.generatedPreamble,
       configFile.typeLocations,
-      R.merge(
+      R.mergeRight/*:: <{[string]: string}, {[string]: string}> */(
         configFile.importLocations,
         R.mergeAll(
-          R.reduce(
+          R.reduce/*:: <Array<{[string]: string}>, Array<{[string]: string}>> */(
             R.concat,
             [],
             R.map(g => {
