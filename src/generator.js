@@ -4,7 +4,6 @@ import {
   concat,
   length,
   map,
-  mergeRight,
   pipe,
   prop,
   reduce,
