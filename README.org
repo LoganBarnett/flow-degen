@@ -47,7 +47,7 @@ yarn add -E -D flow-degen
     "generators": [
       {
         "exports": {
-          "fooGenerator": "fooRefiner",
+          "fooGenerator": "fooRefiner"
         },
         "inputFile": "./dir/generator-input-file.js",
         "outputFile": "deserializer-output-file.js"
