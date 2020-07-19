@@ -21,12 +21,14 @@
     "flow-bin": "0.123.0",
     "flow-typed": "3.1.0",
     "prettier": "2.0.5",
-    "ramda": "0.27.0"
+    "ramda": "0.27.0",
+    "rimraf": "3.0.2"
   },
   "peerDependencies": {},
   "dependencies": {},
   "scripts": {
     "generate-config": "yarn babel-node flow-degen meta-config.json",
+    "prepare": "./node_modules/.bin/babel-node build.js",
     "test": "yarn babel-node test/test-suite.js"
   }
 }

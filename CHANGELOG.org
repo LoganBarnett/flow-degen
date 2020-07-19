@@ -9,6 +9,14 @@
 * changelog
 ** Upcoming
 *** Breaking
+*** Additions
+*** Fixes
+1. We now use the =prepare= script to build the application. This makes
+   maintenance life a little easier, and consumption is now easier for folks who
+   want to iterate on a branch of =flow-degen=.
+
+** 0.18.0
+*** Breaking
 
 *** Additions
 
