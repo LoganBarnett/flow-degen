@@ -5,9 +5,10 @@
   "homepage": "https://github.com/loganbarnett/flow-degen",
   "main": "dist/index.js",
   "files": [
+    "babel.config.js",
     "dist/**/*",
-    "index.js.flow",
-    "flow-degen.js"
+    "flow-degen.js",
+    "index.js.flow"
   ],
   "bin": {
     "flow-degen": "./flow-degen.js"
