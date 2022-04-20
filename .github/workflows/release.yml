@@ -2,10 +2,16 @@ name: Release
 on: [push]
 jobs:
   release-package:
-    runs-on: nodejs:latest
-    steps:
-      - run: yarn install
-      - run: yarn test
-      - run: yarn prepare
-      # TODO: This needs a token and permissions configured.
-      # run: yarn publish
+  runs-on: ubuntu-latest
+  # name:
+  steps:
+    - uses: actions/checkout@v3
+    - name: Setup Node.JS
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+    - run: yarn install
+    - run: yarn test
+    - run: yarn prepare
+    # TODO: This needs a token and permissions configured.
+    # run: yarn publish
