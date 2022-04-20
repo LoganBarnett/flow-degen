@@ -13,5 +13,8 @@ jobs:
       - run: yarn install
       - run: yarn test
       - run: yarn prepare
+      # Github Actions catches this as an orphaned process, but let's be a good
+      # citizen and clean up after ourselves.
+      - run: yarn flow stop
       # TODO: This needs a token and permissions configured.
       # run: yarn publish
