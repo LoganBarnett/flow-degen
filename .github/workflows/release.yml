@@ -1,9 +1,10 @@
 name: Release
 on: [push]
+  # push:
+  #   - master
 jobs:
   release-package:
     runs-on: ubuntu-latest
-    # name:
     steps:
       - uses: actions/checkout@v3
       - name: Setup Node.JS
@@ -13,16 +14,13 @@ jobs:
       - run: yarn install
       - run: yarn test
       - run: ./changelog-bump.js
-      # - run: OLD_VERSION="$(jq '.version' package.json | cut -d. -f2)"
-      # - run: echo "OLD_VERSION- ${OLD_VERSION}"
-      # - run: sed -i 's/^\*\* Upcoming' CHANGELOG.log
       - run: git add CHANGELOG.org
       - run: yarn --new-version minor
       - run: yarn prepare
-      # - run: yarn publish
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ secrets.YARN_TOKEN }}
-      #- run: git push --tags
+      - run: git push --tags
+      - run: yarn publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       # Github Actions catches this as an orphaned process, but let's be a good
       # citizen and clean up after ourselves.
       - run: yarn flow stop
