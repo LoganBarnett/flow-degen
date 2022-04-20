@@ -1,0 +1,11 @@
+name: Release
+on: [push]
+jobs:
+  release-package:
+    runs-on: nodejs:latest
+    steps:
+      - run: yarn install
+      - run: yarn test
+      - run: yarn prepare
+      # TODO: This needs a token and permissions configured.
+      # run: yarn publish
