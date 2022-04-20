@@ -1,0 +1,30 @@
+name: Release
+on: [push]
+  # push:
+  #   - master
+jobs:
+  release-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.JS
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - run: yarn install
+      - run: yarn test
+      - run: ./changelog-bump.js
+      - run: git add CHANGELOG.org
+      - run: git config --global user.email "tip@gha"
+      - run: git config --global user.name "GHA"
+      - run: yarn version --new-version minor
+      - run: yarn prepare
+      - run: git push && git push --tags
+      - run: yarn publish
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      # Github Actions catches this as an orphaned process, but let's be a good
+      # citizen and clean up after ourselves.
+      - run: yarn flow stop
+      # TODO: This needs a token and permissions configured.
+      # run: yarn publish

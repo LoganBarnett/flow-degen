@@ -8,6 +8,7 @@
 
 * changelog
 ** Upcoming
+** 0.19.0
 *** Breaking
 *** Additions
 *** Fixes
@@ -15,7 +16,9 @@
    maintenance life a little easier, and consumption is now easier for folks who
    want to iterate on a branch of =flow-degen=.
 2. Fix a syntax error in one of the examples (no executable change).
-3. Apply a security bump from dependabot. No actual vulnerabilities were fixed.
+3. Upgrade various build time dependencies - no runtime vulnerabilities were
+   addressed (and none known).
+4. Add Github Actions!
 
 ** 0.18.0
 *** Breaking
