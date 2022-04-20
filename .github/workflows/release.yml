@@ -16,6 +16,7 @@ jobs:
       # - run: OLD_VERSION="$(jq '.version' package.json | cut -d. -f2)"
       # - run: echo "OLD_VERSION- ${OLD_VERSION}"
       # - run: sed -i 's/^\*\* Upcoming' CHANGELOG.log
+      - run: git diff
       - run: git add CHANGELOG.log
       - run: yarn version minor
       - run: yarn prepare
