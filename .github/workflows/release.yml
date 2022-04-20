@@ -12,7 +12,13 @@ jobs:
           node-version: '16'
       - run: yarn install
       - run: yarn test
+      - run: type jq
+      - run: OLD_VERSION="$(jq '.version' package.json | cut -d. -f2)"
+      - run: echo "OLD_VERSION: ${OLD_VERSION}"
+      - run: sed -i 's/^\*\* Upcoming' CHANGELOG.log
+      - run: yarn version minor
       - run: yarn prepare
+      #- run: git push --tags
       # Github Actions catches this as an orphaned process, but let's be a good
       # citizen and clean up after ourselves.
       - run: yarn flow stop
