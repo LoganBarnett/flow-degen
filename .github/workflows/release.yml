@@ -19,8 +19,8 @@ jobs:
       - run: git config --global user.email "tip@gha"
       - run: git config --global user.name "GHA"
       - run: yarn version --new-version minor
-      - run: yarn prepare
       - run: git push && git push --tags
+      # The publish target also calls prepare beforehand.
       - run: yarn publish
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
