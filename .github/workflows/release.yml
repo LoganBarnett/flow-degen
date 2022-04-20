@@ -17,6 +17,8 @@ jobs:
       - run: git add CHANGELOG.org
       - run: yarn version --new-version minor
       - run: yarn prepare
+      - run: git config --global user.email "tip@gha"
+      - run: git config --global user.name "GHA"
       - run: git push && git push --tags
       - run: yarn publish
         env:
