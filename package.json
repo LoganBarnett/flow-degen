@@ -4,7 +4,7 @@
   "description": "Generate (Flow) type safe deserializers in Javascript.",
   "homepage": "https://github.com/loganbarnett/flow-degen",
   "main": "dist/index.js",
-  "files": "dist/**/*",
+  "files": ["dist/**/*"],
   "bin": {
     "flow-degen": "./flow-degen.js"
   },
