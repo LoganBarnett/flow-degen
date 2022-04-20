@@ -17,7 +17,7 @@ jobs:
       # - run: echo "OLD_VERSION- ${OLD_VERSION}"
       # - run: sed -i 's/^\*\* Upcoming' CHANGELOG.log
       - run: git add CHANGELOG.org
-      - run: yarn version minor
+      - run: yarn --new-version minor
       - run: yarn prepare
       # - run: yarn publish
       #   env:
