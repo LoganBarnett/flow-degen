@@ -15,7 +15,7 @@ jobs:
       - run: yarn test
       - run: ./changelog-bump.js
       - run: git add CHANGELOG.org
-      - run: yarn --new-version minor
+      - run: yarn version --new-version minor
       - run: yarn prepare
       - run: git push && git push --tags
       - run: yarn publish
