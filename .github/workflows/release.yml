@@ -17,10 +17,10 @@ jobs:
       - run: git add CHANGELOG.org
       - run: yarn --new-version minor
       - run: yarn prepare
-      - run: git push --tags
+      - run: git push && git push --tags
       - run: yarn publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.YARN_TOKEN }}
       # Github Actions catches this as an orphaned process, but let's be a good
       # citizen and clean up after ourselves.
       - run: yarn flow stop
