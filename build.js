@@ -12,6 +12,7 @@
 
 const child_process = require('child_process')
 const fs = require('fs').promises
+const glob = require('glob')
 const path = require('path')
 const rimraf = require('rimraf')
 const util = require('util')
@@ -47,7 +48,17 @@ Promise.resolve()
   .then(() => util.promisify(rimraf)('dist'))
   .catch(() => null)
   .then(() => fs.mkdir('dist'))
-  .then(() => shellCall('node_modules/.bin/babel', '-d', 'dist', 'src'))
+  // We expect babel to be on the PATH. If you must run without npm/yarn, use
+  // PATH=node_modules/.bin as a prefix to your command.
+  // Babel allows a directory as the source but it seems to only transform
+  // index.js. We need everything transformed, so explicitly invoke babel. Even
+  // a single invocation of babel with all of the paths simultaenously does not
+  // produce the desired transformations. Maybe it's a bug? But I didn't find
+  // anything.
+  .then(() => glob
+      .sync('src/**/*.js')
+      .map(p => shellCall('babel', '-d', 'dist', p))
+  )
 /**
  * This file copy was added to work around an issue with Flow strict. The cause
  * is not well understood and this doesn't seem to fix all cases of using Flow's
@@ -55,8 +66,8 @@ Promise.resolve()
  * root ./index.js.flow workaround (see below) fixes the problem. These fixes
  * can coexist.
  */
-  .then(fs.copyFile.bind(null, 'src/index.js', 'index.js.flow'))
-  .then(fs.copyFile.bind(null, 'src/index.js', 'dist/index.js.flow'))
+  .then(() => fs.copyFile.bind('src/index.js', 'index.js.flow'))
+  .then(() => fs.copyFile.bind('src/index.js', 'dist/index.js.flow'))
 /**
  * When doing import {...} from 'flow-degen', Flow looks at the root directory
  * first, and finds index.js.flow. It's just a copy of our original

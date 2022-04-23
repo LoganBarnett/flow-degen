@@ -8,6 +8,11 @@
 
 * changelog
 ** Upcoming
+*** Breaking
+*** Additions
+*** Fixes
+1. Build process now transpiles all files. All dist files now work as Common.JS
+   rather than a mix of Common.JS and ES6 modules.
 ** 0.19.0
 *** Breaking
 *** Additions
