@@ -8,7 +8,8 @@
     "babel.config.js",
     "dist/**/*",
     "flow-degen.js",
-    "index.js.flow"
+    "index.js.flow",
+    "src/**/*"
   ],
   "bin": {
     "flow-degen": "./flow-degen.js"
@@ -17,24 +18,24 @@
   "author": "Logan Barnett <logustus@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "@babel/cli": "7.8.4",
-    "@babel/core": "7.9.0",
-    "@babel/node": "7.8.7",
-    "@babel/plugin-transform-modules-commonjs": "7.9.0",
-    "@babel/preset-flow": "7.9.0",
-    "@babel/register": "7.9.0",
-    "@babel/runtime": "7.9.2",
-    "flow-bin": "0.123.0",
-    "flow-typed": "3.1.0",
-    "prettier": "2.0.5",
-    "ramda": "0.27.0",
+    "@babel/cli": "7.17.6",
+    "@babel/core": "7.17.9",
+    "@babel/node": "7.16.8",
+    "@babel/plugin-transform-modules-commonjs": "7.17.9",
+    "@babel/preset-flow": "7.16.7",
+    "@babel/register": "7.17.7",
+    "@babel/runtime": "7.17.9",
+    "flow-bin": "0.176.3",
+    "flow-typed": "3.7.0",
+    "prettier": "2.6.2",
+    "ramda": "0.28.0",
     "rimraf": "3.0.2"
   },
   "peerDependencies": {},
   "dependencies": {},
   "scripts": {
-    "generate-config": "yarn babel-node flow-degen meta-config.json",
-    "prepare": "./node_modules/.bin/babel-node build.js",
-    "test": "yarn babel-node test/test-suite.js"
+    "generate-config": "babel-node flow-degen meta-config.json",
+    "prepare": "babel-node build.js",
+    "test": "babel-node test/test-suite.js"
   }
 }
