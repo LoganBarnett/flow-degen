@@ -13,6 +13,7 @@
 *** Fixes
 1. Build process now transpiles all files. All dist files now work as Common.JS
    rather than a mix of Common.JS and ES6 modules.
+2. Fix build process when =index.js.flow= is not present on disk.
 ** 0.19.0
 *** Breaking
 *** Additions

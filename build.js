@@ -66,8 +66,8 @@ Promise.resolve()
  * root ./index.js.flow workaround (see below) fixes the problem. These fixes
  * can coexist.
  */
-  .then(() => fs.copyFile.bind('src/index.js', 'index.js.flow'))
-  .then(() => fs.copyFile.bind('src/index.js', 'dist/index.js.flow'))
+  .then(() => fs.copyFile('src/index.js', './index.js.flow'))
+  .then(() => fs.copyFile('src/index.js', './dist/index.js.flow'))
 /**
  * When doing import {...} from 'flow-degen', Flow looks at the root directory
  * first, and finds index.js.flow. It's just a copy of our original
