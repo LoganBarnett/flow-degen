@@ -91,7 +91,9 @@ runFlow(code).then((errorText) => {
     'Expected error where type Baz is not in union type Union in:\n' + errorText,
   )
   assert.ok(
-    errorText.match(/string literal `baz` \[1] is incompatible with enum \[2]./),
+    errorText.match(
+      /string literal `baz` \[1] is incompatible with literal union \[2]./,
+    ),
     'Expected error where "baz" literal is not in union UnionKind in:\n' + errorText,
   )
 }).catch((e: mixed) => {
