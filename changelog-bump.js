@@ -2,7 +2,7 @@
 /**
  * A CLI script for bumping the changelog automatically.
  *
- * It marks the "Upcoming" section as the new version, and creates a new
+ * The script marks the "Upcoming" section as the new version, and creates a new
  * Upcoming section.
  */
 const fs = require('fs').promises
